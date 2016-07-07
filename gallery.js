@@ -5,17 +5,13 @@ const React = require('react')
     , Immutable = require('immutable')
 
 
-
-const enabledLayouts = [
-  require('./layouts/statistics'),
-  require('./layouts/changelog_summary')
-]
-
+const enabledLayouts = require('./')
 
 
 const loadingEl = document.getElementById('layout-loading')
     , listEl = document.getElementById('layout-list')
     , containerEl = document.getElementById('layout-container')
+
 
 const handlerByID = {}
 
@@ -39,8 +35,6 @@ enabledLayouts.forEach(({ id, label, description }) => {
 });
 
 
-/** Dealing with navigation/loading **/
-
 function renderLayout(dataset, prov, handler) {
   const sandbox = document.createElement('div')
 
@@ -56,6 +50,7 @@ function renderLayout(dataset, prov, handler) {
   }
 }
 
+
 function clearLayout() {
   while (containerEl.firstChild) {
     const child = containerEl.firstChild
@@ -67,6 +62,7 @@ function clearLayout() {
     containerEl.removeChild(child);
   }
 }
+
 
 function handleHashChange(dataset, prov) {
   const id = window.location.hash.split('#')[1]
@@ -88,6 +84,7 @@ function handleHashChange(dataset, prov) {
   }
 }
 
+
 function init() {
   Promise.all([
     fetch('https://test.perio.do/d.jsonld').then(resp => resp.json()),
@@ -104,5 +101,6 @@ function init() {
       window.onhashchange();
     })
 }
+
 
 init();

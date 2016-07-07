@@ -4,8 +4,8 @@
   "description": "Visual layouts for the PeriodO dataset",
   "main": "index.js",
   "scripts": {
-    "build": "mkdir -p dist && browserify -o dist/bundle.js browser.js",
-    "watch": "mkdir -p dist && watchify -dv -o dist/bundle.js browser.js"
+    "build": "mkdir -p dist && browserify -o dist/bundle.js gallery.js",
+    "watch": "mkdir -p dist && watchify -dv -o dist/bundle.js gallery.js"
   },
   "keywords": [],
   "author": "",
