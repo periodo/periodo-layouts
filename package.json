@@ -1,6 +1,6 @@
 {
   "name": "periodo-layouts",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Visual layouts for the PeriodO dataset",
   "main": "index.js",
   "scripts": {
