@@ -5,17 +5,17 @@ const React = require('react')
     , Immutable = require('immutable')
 
 
-const loadingEl = document.getElementById('layout-loading')
-    , listEl = document.getElementById('layout-list')
-    , containerEl = document.getElementById('layout-container')
-
-
-/** Enabled layouts **/
 
 const enabledLayouts = [
   require('./layouts/statistics'),
   require('./layouts/changelog_summary')
 ]
+
+
+
+const loadingEl = document.getElementById('layout-loading')
+    , listEl = document.getElementById('layout-list')
+    , containerEl = document.getElementById('layout-container')
 
 const handlerByID = {}
 
