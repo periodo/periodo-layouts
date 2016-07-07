@@ -1,9 +1,10 @@
 {
   "name": "periodo-layouts",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Visual layouts for the PeriodO dataset",
   "main": "index.js",
   "scripts": {
+    "prepublish": "rm -rf dist && npm run build",
     "build": "mkdir -p dist && browserify -o dist/bundle.js gallery.js",
     "watch": "mkdir -p dist && watchify -dv -o dist/bundle.js gallery.js"
   },
