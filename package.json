@@ -2,11 +2,11 @@
   "name": "periodo-layouts",
   "version": "1.0.0",
   "description": "Visual layouts for the PeriodO dataset",
-  "main": "index.js",
+  "main": "Layouts.js",
   "scripts": {
     "prepublish": "rm -rf dist && npm run build",
-    "build": "mkdir -p dist && browserify -o dist/bundle.js gallery.js",
-    "watch": "mkdir -p dist && watchify -dv -o dist/bundle.js gallery.js"
+    "build": "mkdir -p dist && browserify -o dist/bundle.js standalone.js",
+    "watch": "mkdir -p dist && watchify -dv -o dist/bundle.js standalone.js"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +19,7 @@
     "iso-639-3": "^1.0.0",
     "n3": "^0.5.0",
     "periodo-utils": "^3.0.0",
+    "qs": "^6.2.1",
     "react": "^15.2.0",
     "react-dom": "^15.2.0",
     "react-hyperscript": "^2.4.0"

@@ -1,8 +1,10 @@
-
 "use strict";
 
 const React = require('react')
     , h = require('react-hyperscript')
+
+exports.label = 'Changelog summary';
+exports.description = 'Simple summary of the changes to the dataset.';
 
 const CollectionList = React.createClass({
   render() {
@@ -33,9 +35,4 @@ const CollectionList = React.createClass({
   }
 })
 
-module.exports = {
-  id: 'changelog-summary',
-  label: 'Changelog summary',
-  description: 'Simple summary of the changes to the dataset.',
-  handler: CollectionList
-}
+exports.handler = CollectionList;

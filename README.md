@@ -17,13 +17,14 @@ Once the application has been compiled, open `index.html`.
 To create a visualization, first create a new module in the `layouts` folder.
 Visualizations can be React components (see `layouts/changelog_summary`) or
 simply work with a DOM node (see `layouts/statistics`). Then add the module to
-array in `index.js`.
+array in `layouts/index.js`.
 
 Visualizations have access to the dataset itself (exposed as an ImmutableJS
 Map) as well as its provenance graph (exposed as a plain object). See the
 examples above for guidance.
 
 Once your visualization is complete, submit a pull request to this repository
-if you would would like it to be considered for inclusion in this gallery.
+if you would would like it to be considered for inclusion among enabled
+layouts.
 
 [PeriodO]: https://perio.do/

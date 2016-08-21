@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , Immutable = require('immutable')
     , { isIterable } = Immutable.Iterable
 
-function preventDefault(fn, e) {
+function preventDefault(fn) {
   return e => {
     e.preventDefault();
     e.stopPropagation();
@@ -18,7 +18,9 @@ const FacetValue = ({ value='(undefined)' , count , handleClick, format }) =>
   h('tr', { key: isIterable(value) ? value.hashCode() : value }, [
     h('td', count),
     h('td', [
-      h('a', { href: '', onClick: preventDefault(handleClick) }, format ? format(value) : value)
+      h('a', { href: '', onClick: preventDefault(handleClick) }, [
+        format ? format(value) : value
+      ])
     ])
   ])
 

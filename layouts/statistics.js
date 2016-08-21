@@ -1,19 +1,25 @@
 "use strict";
 
-module.exports = {
-  id: 'statistics',
-  label: 'Statistics',
-  description: 'Simple stastics about the dataset.',
-  handler: function render(dataset, prov, container) {
-    const collections = dataset.get('periodCollections')
+exports.label = 'Statistics';
+exports.description = 'Simple stastics about the dataset.';
 
-    const collectionCount = collections.size
+const statisticsHandler = {
+  init(container, props) {
+    this._container = container;
+    this.update(props);
+  },
+
+  update({ data }) {
+    const collections = data.get('periodCollections')
+        , collectionCount = collections.size
 
     const periodCount = collections
       .reduce((acc, collection) => acc + collection.get('definitions').size, 0)
 
-    container.innerHTML = `
+    this._container.innerHTML = `
       <p>There are ${periodCount} period definitions in ${collectionCount} collections.</p>
     `
   }
 }
+
+exports.handler = statisticsHandler;
