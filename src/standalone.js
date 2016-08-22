@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , ReactDOM = require('react-dom')
     , Immutable = require('immutable')
-    , Layouts = require('./Layouts')
+    , LayoutPanel = require('./LayoutPanel')
 
 
 const loadingEl = document.getElementById('layout-loading')
@@ -44,7 +44,7 @@ function init() {
     listEl.classList.remove('hide');
     loadingEl.classList.add('hide');
 
-    ReactDOM.render(h(Layouts, {
+    ReactDOM.render(h(LayoutPanel, {
       data: window.dataset,
       prov: window.prov,
     }), containerEl);
