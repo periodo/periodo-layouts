@@ -1,6 +1,7 @@
 "use strict";
 
 const h = require('react-hyperscript')
+    , React = require('react')
     , ReactDOM = require('react-dom')
     , Immutable = require('immutable')
     , LayoutPanel = require('./LayoutPanel')
@@ -14,24 +15,40 @@ const loadingEl = document.getElementById('layout-loading')
 
 const PERIODO_URL = 'http://localhost:5001'
 
-/*
 const StandaloneGallery = React.createClass({
   getInitialState() {
-    return { layoutSpec: '' }
+    let spec = new LayoutSpec(window.location.hash.slice(1))
+
+    if (!spec.layouts.get(-1).slice(-1).isEmpty()) {
+      spec = spec.addLayoutGroup();
+    }
+
+    return { spec }
   },
 
   componentDidMount() {
     window.onhashchange = ({ newURL }) => {
-      const layoutSpec = newURL.slice(newURL.indexOf('#') + 1);
-      this.setState({ layoutSpec });
+      let spec = newURL.slice(newURL.indexOf('#') + 1);
+
+      spec = new LayoutSpec(spec);
+
+      if (!spec.layouts.get(-1).slice(-1).isEmpty()) {
+        spec = spec.addLayoutGroup();
+      }
+
+      this.setState({ spec });
     }
   },
 
   render() {
-    return h(LayoutOrganizer, this.state)
+    return h(LayoutPanel, Object.assign({
+      onSpecChange: spec => {
+        window.location.hash = spec.toString()
+        this.setState({ spec })
+      }
+    }, this.props, this.state))
   }
 })
-*/
 
 
 function init() {
@@ -45,14 +62,9 @@ function init() {
     listEl.classList.remove('hide');
     loadingEl.classList.add('hide');
 
-    ReactDOM.render(h(LayoutPanel, {
+    ReactDOM.render(h(StandaloneGallery, {
       data: window.dataset,
       prov: window.prov,
-      spec: new LayoutSpec([
-        [{ name: 'statistics' }],
-        [],
-        []
-      ]),
     }), containerEl);
   })
 }

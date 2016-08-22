@@ -3,18 +3,47 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , Immutable = require('immutable')
+    , enabledLayouts = require('./layouts')
     , LayoutBlock = require('./LayoutBlock')
     , LayoutSpec = require('./spec')
-    , { Filter } = require('./records')
+    , { Filter, Layout } = require('./records')
     , { notEmpty, keepItemsInSet } = require('./utils')
+
+
+const LayoutBlockChooser = ({ onSelectLayoutBlock }) =>
+  h('div', [
+    h('h2', 'Select layout'),
+    h('ul', Object.keys(enabledLayouts).map(name =>
+      h('li', { key: name }, [
+        h('h3', [
+          h('a', {
+            href: '',
+            onClick: e => {
+              e.preventDefault();
+              onSelectLayoutBlock(new Layout({ name }));
+            }
+          }, enabledLayouts[name].label)
+        ]),
+        h('p', enabledLayouts[name].description)
+      ])
+    ))
+  ])
+
 
 module.exports = React.createClass({
   displayName: 'LayoutPanel',
 
   propTypes: {
+    onSpecChange: React.PropTypes.func.isRequired,
     spec: React.PropTypes.instanceOf(LayoutSpec).isRequired,
     data: React.PropTypes.instanceOf(Immutable.Map).isRequired,
     prov: React.PropTypes.object.isRequired,
+  },
+
+  getInitialState() {
+    return {
+      layoutFilters: []
+    }
   },
 
   getDataForLevel(i) {
@@ -41,9 +70,9 @@ module.exports = React.createClass({
       if (notEmpty(keptPeriods)) {
         data = data.update('periodCollections', collections =>
           collections
-            .map(c => c.update('definitions', keepItemsInSet(keptPeriods))
+            .map(c => c.update('definitions', keepItemsInSet(keptPeriods)))
             .filter(c => c.get('definitions').size > 0)
-        ))
+        )
 
         cont = false
       }
@@ -68,11 +97,17 @@ module.exports = React.createClass({
   },
 
   render() {
-    const { spec } = this.props
+    const { spec, onSpecChange } = this.props
 
     const layoutGroups = spec.layouts.map((group, i) =>
       group.size === 0
-        ? h('p', 'empty group')
+        ? h(LayoutBlockChooser, {
+            onSelectLayoutBlock: layout =>
+              onSpecChange(spec
+                .addLayoutBlock(i, Infinity, layout)
+                .addLayoutGroup()
+              )
+          })
         : group.map((layout, j) =>
             h(LayoutBlock, {
               key: j,
@@ -97,15 +132,19 @@ module.exports = React.createClass({
 
     return h('div', {
       style: {
-        width: '100%',
-        background: '#666',
+        padding: '1em',
+        width: '90%',
+        background: '#999',
       }
     }, layoutGroups.map(group => h('div', {
       style: {
-        display: 'flex',
-        justifyContent: 'center',
-        background: '#f0f0f0',
-        marginBottom: '1em'
+        display: group.size > 0 ? 'flex' : 'block',
+        justifyContent: 'space-around',
+        background: '#fcfcfc',
+        margin: '1em',
+        padding: '1em',
+        border: '1px solid #666',
+
       }
     }, group)))
   }

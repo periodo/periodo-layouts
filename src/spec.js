@@ -101,7 +101,7 @@ class LayoutSpec {
       return '';
     }
 
-    return qs.stringify(this.layouts.toJS())
+    return qs.stringify({ layouts: this.layouts.toJS() })
   }
 
   addLayoutBlock(groupIndex, layoutIndex=Infinity, layout) {
