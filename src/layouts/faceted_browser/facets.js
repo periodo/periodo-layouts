@@ -16,8 +16,8 @@ const iso639_3 = require('iso-639-3').reduce((obj, lang) => {
 module.exports = {
   source: {
     label: 'Source',
-    fn: (dataset, period) =>
-      getDisplayTitle(dataset.getIn([
+    fn: (data, period) =>
+      getDisplayTitle(data.getIn([
         'periodCollections', period.get('collection_id'), 'source'
       ]))
   },
@@ -25,7 +25,7 @@ module.exports = {
   language: {
     label: 'Language',
     multiValue: true,
-    fn: (dataset, period) =>
+    fn: (data, period) =>
       period
         .get('localizedLabels', Immutable.Map())
         .keySeq()
@@ -35,7 +35,7 @@ module.exports = {
   spatialCoverage: {
     label: 'Spatial coverage',
     multiValue: true,
-    fn: (dataset, period) => period.get('spatialCoverage'),
+    fn: (data, period) => period.get('spatialCoverage'),
     format: val => val.get('label')
   }
 }

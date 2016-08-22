@@ -23,9 +23,9 @@ module.exports = React.createClass({
   },
 
   getInitialFacetedQuery() {
-    const { dataset } = this.props
+    const { data } = this.props
 
-    const periods = dataset
+    const periods = data
       .get('periodCollections')
       .flatMap(collection => collection
         .get('definitions')
@@ -39,7 +39,7 @@ module.exports = React.createClass({
 
       return fc.addFacet(
         facetName,
-        field.fn.bind(this, dataset),
+        field.fn.bind(this, data),
         { multiValue: field.multiValue }
       )
     }, fc.addFieldFacet('id')))
@@ -181,7 +181,7 @@ module.exports = React.createClass({
 
   render() {
     const { facetedQuery } = this.state
-        , anyPeriods = this.props.dataset.get('periodCollections').size > 0
+        , anyPeriods = this.props.data.get('periodCollections').size > 0
         , periodsInRange = this.getMatchedPeriods(true)
         // , periods = this.getMatchedPeriods(false)
         // , RangeSelection = require('../shared/range_selection.jsx')
@@ -233,7 +233,7 @@ module.exports = React.createClass({
                 <p>No periods match filter criteria.</p> :
                 <PeriodList
                   periods={periodsInRange}
-                  dataset={this.props.dataset}
+                  data={this.props.data}
                   backend={this.props.backend} />
             }
           </div>
