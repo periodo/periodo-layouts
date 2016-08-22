@@ -2,7 +2,7 @@
 
 const qs = require('qs')
     , Immutable = require('immutable')
-    , registeredLayouts = require('./layouts')
+    , registeredLayouts = Object.keys(require('./layouts'))
     , { Layout } = require('./records')
 
 
@@ -74,7 +74,7 @@ class LayoutSpec {
         groupList.push(Immutable.List().withMutations(layoutList => {
           group.forEach((layout, j) => {
             try {
-              if (!registeredLayouts.indexOf(layout.name) >= 0) {
+              if (registeredLayouts.indexOf(layout.name) === -1) {
                 throw new Error(
                   `Layout "${layout.name} is not a registered layout. ` +
                   `Valid layout choices: ${registeredLayouts.join(', ')}`

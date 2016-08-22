@@ -4,6 +4,7 @@ const h = require('react-hyperscript')
     , ReactDOM = require('react-dom')
     , Immutable = require('immutable')
     , LayoutPanel = require('./LayoutPanel')
+    , LayoutSpec = require('./spec')
 
 
 const loadingEl = document.getElementById('layout-loading')
@@ -47,6 +48,11 @@ function init() {
     ReactDOM.render(h(LayoutPanel, {
       data: window.dataset,
       prov: window.prov,
+      spec: new LayoutSpec([
+        [{ name: 'statistics' }],
+        [],
+        []
+      ]),
     }), containerEl);
   })
 }

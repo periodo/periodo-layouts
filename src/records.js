@@ -12,3 +12,5 @@ const Layout = Immutable.Record({
   name: undefined,
   options: '',
 })
+
+module.exports = { Filter, Layout }

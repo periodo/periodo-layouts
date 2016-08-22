@@ -12,7 +12,7 @@ module.exports = React.createClass({
   displayName: 'LayoutPanel',
 
   propTypes: {
-    layouts: React.PropTypes.instanceOf(LayoutSpec).isRequired,
+    spec: React.PropTypes.instanceOf(LayoutSpec).isRequired,
     data: React.PropTypes.instanceOf(Immutable.Map).isRequired,
     prov: React.PropTypes.object.isRequired,
   },
@@ -68,10 +68,10 @@ module.exports = React.createClass({
   },
 
   render() {
-    const { layouts } = this.props
+    const { spec } = this.props
 
-    const layoutGroups = layouts.map((group, i) =>
-      group.length === 0
+    const layoutGroups = spec.layouts.map((group, i) =>
+      group.size === 0
         ? h('p', 'empty group')
         : group.map((layout, j) =>
             h(LayoutBlock, {
@@ -92,14 +92,21 @@ module.exports = React.createClass({
               setOptions: options => this.setState(prev => ({
                 groups: prev.groups.setIn([i, j, 'options'], options)
               }))
-            }))
-    )
+            })).toArray()
+    ).toArray()
 
     return h('div', {
       style: {
+        width: '100%',
+        background: '#666',
+      }
+    }, layoutGroups.map(group => h('div', {
+      style: {
         display: 'flex',
         justifyContent: 'center',
+        background: '#f0f0f0',
+        marginBottom: '1em'
       }
-    }, layoutGroups)
+    }, group)))
   }
 })
