@@ -15,11 +15,7 @@ module.exports = React.createClass({
     prov: React.PropTypes.object.isRequired,
 
     name: React.PropTypes.oneOf(Object.keys(layouts)).isRequired,
-    options: React.PropTypes.string,
-
-    setKeptCollections: React.PropTypes.func.isRequired,
-    setKeptPeriods: React.PropTypes.func.isRequired,
-    setOptions: React.PropTypes.func.isRequired,
+    options: React.PropTypes.instanceOf(Immutable.Map),
   },
 
   componentWillUpdate(nextProps) {

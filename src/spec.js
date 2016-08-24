@@ -3,7 +3,7 @@
 const qs = require('qs')
     , Immutable = require('immutable')
     , registeredLayouts = Object.keys(require('./layouts'))
-    , { Layout } = require('./records')
+    , { Layout, Filter } = require('./records')
 
 
 const EMPTY_SPEC = Immutable.List([ Immutable.List([]) ]);
@@ -125,6 +125,32 @@ class LayoutSpec {
     return new LayoutSpec(new PassThrough(
       this.layouts.deleteIn([groupIndex, layoutIndex])
     ))
+  }
+
+  updateLayout(groupIndex, layoutIndex, { options, filters }) {
+    return new LayoutSpec(new PassThrough(
+      this.layouts.updateIn(
+        [groupIndex, layoutIndex],
+        layout => layout.withMutations(l => {
+          if (filters) {
+            l.set('filters', new Filter().merge(filters))
+          }
+
+          if (options) {
+            l.set('options', Immutable.fromJS(JSON.parse(JSON.stringify(options))))
+          }
+        })
+      )
+    ))
+  }
+
+  setLayoutBlockFilter(groupIndex, layoutIndex, filters) {
+    console.log(filters);
+    return new LayoutSpec(new PassThrough(
+      this.layouts.setIn(
+        [groupIndex, layoutIndex, 'filters'],
+        new Filter().merge(filters)
+    )))
   }
 
   addLayoutGroup(groupIndex=Infinity) {

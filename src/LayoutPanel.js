@@ -40,31 +40,25 @@ module.exports = React.createClass({
     prov: React.PropTypes.object.isRequired,
   },
 
-  getInitialState() {
-    return {
-      layoutFilters: []
-    }
-  },
-
   getDataForLevel(i) {
+    const { spec } = this.props
+
     let { data } = this.props
 
     if (i === 0) return data;
 
-    const { layoutFilters } = this.state
+    const filters = spec.layouts
+      .slice(0, i)
+      .flatMap(group => group.map(layout => layout.filters))
 
-    layoutFilters.forEach(filters => {
+    filters.forEach(filter => {
       if (!filters) return true
 
-      let cont = true
-
-      const keptCollections = filters.map(f => f.collections).flatten()
-          , keptPeriods = filters.map(f => f.periods).flatten()
+      const keptCollections = Immutable.Set(filter.collections || [undefined])
+          , keptPeriods = Immutable.Set(filter.periods || [undefined])
 
       if (notEmpty(keptCollections)) {
         data = data.update('periodCollections', keepItemsInSet(keptCollections))
-
-        cont = false
       }
 
       if (notEmpty(keptPeriods)) {
@@ -73,11 +67,7 @@ module.exports = React.createClass({
             .map(c => c.update('definitions', keepItemsInSet(keptPeriods)))
             .filter(c => c.get('definitions').size > 0)
         )
-
-        cont = false
       }
-
-      return cont;
     })
 
     return data
@@ -113,20 +103,12 @@ module.exports = React.createClass({
               key: j,
               name: layout.name,
               options: layout.options,
+
               data: this.getDataForLevel(i),
               prov: this.props.prov,
 
-              setKeptCollections: collections => this.setState(prev => ({
-                groups: prev.groups.setIn([i, j, 'filters', 'collections'], collections)
-              })),
-
-              setKeptPeriods: periods => this.setState(prev => ({
-                groups: prev.groups.setIn([i, j, 'filters', 'periods'], periods)
-              })),
-
-              setOptions: options => this.setState(prev => ({
-                groups: prev.groups.setIn([i, j, 'options'], options)
-              }))
+              onLayoutChange: opts =>
+                onSpecChange(spec.updateLayout(i, j, opts))
             })).toArray()
     ).toArray()
 

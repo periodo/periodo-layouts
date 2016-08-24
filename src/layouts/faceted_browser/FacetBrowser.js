@@ -13,6 +13,12 @@ const h = require('react-hyperscript')
 module.exports = React.createClass({
   displayName: 'FacetBrowser',
 
+  propTypes: {
+    data: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    onOptionChange: React.PropTypes.func.isRequired,
+    onFilterChange: React.PropTypes.func.isRequired,
+  },
+
   getInitialState() {
     return {
       facetedQuery: this.getInitialFacetedQuery(),

@@ -3,7 +3,7 @@
 const Immutable = require('immutable')
 
 function notEmpty(set) {
-  return set.equals(Immutable.Set([undefined]))
+  return !set.equals(Immutable.Set([undefined]))
 }
 
 function keepItemsInSet(toKeep) {
