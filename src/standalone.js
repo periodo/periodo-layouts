@@ -11,7 +11,7 @@ const loadingEl = document.getElementById('layout-loading')
     , containerEl = document.getElementById('layout-container')
 
 
-const PERIODO_URL = 'http://localhost:5001'
+const PERIODO_URL = 'http://n2t.net/ark:/99152/p0';
 
 function init() {
   Promise.all([
