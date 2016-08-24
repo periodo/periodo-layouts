@@ -1,11 +1,9 @@
 "use strict";
 
-const h = require('react-hyperscript')
-    , React = require('react')
+const qs = require('qs')
     , ReactDOM = require('react-dom')
     , Immutable = require('immutable')
-    , LayoutPanel = require('./LayoutPanel')
-    , LayoutSpec = require('./spec')
+    , { resetLayoutGroups } = require('./actions')
 
 
 const loadingEl = document.getElementById('layout-loading')
@@ -14,42 +12,6 @@ const loadingEl = document.getElementById('layout-loading')
 
 
 const PERIODO_URL = 'http://localhost:5001'
-
-const StandaloneGallery = React.createClass({
-  getInitialState() {
-    let spec = new LayoutSpec(window.location.hash.slice(1))
-
-    if (!spec.layouts.get(-1).slice(-1).isEmpty()) {
-      spec = spec.addLayoutGroup();
-    }
-
-    return { spec }
-  },
-
-  componentDidMount() {
-    window.onhashchange = ({ newURL }) => {
-      let spec = newURL.slice(newURL.indexOf('#') + 1);
-
-      spec = new LayoutSpec(spec);
-
-      if (!spec.layouts.get(-1).slice(-1).isEmpty()) {
-        spec = spec.addLayoutGroup();
-      }
-
-      this.setState({ spec });
-    }
-  },
-
-  render() {
-    return h(LayoutPanel, Object.assign({
-      onSpecChange: spec => {
-        window.location.hash = spec.toString()
-        this.setState({ spec })
-      }
-    }, this.props, this.state))
-  }
-})
-
 
 function init() {
   Promise.all([
@@ -62,10 +24,20 @@ function init() {
     listEl.classList.remove('hide');
     loadingEl.classList.add('hide');
 
-    ReactDOM.render(h(StandaloneGallery, {
+    const root = require('./Root')({
       data: window.dataset,
       prov: window.prov,
-    }), containerEl);
+    });
+
+    const { store } = root.props
+
+    store.dispatch(resetLayoutGroups(window.location.hash.slice(1)));
+
+    store.subscribe(() => {
+      window.location.hash = qs.stringify({ groups: store.getState().groups.toJS() })
+    });
+
+    ReactDOM.render(root, containerEl);
   })
 }
 

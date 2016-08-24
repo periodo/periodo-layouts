@@ -26,7 +26,11 @@
     "qs": "^6.2.1",
     "react": "^15.2.0",
     "react-dom": "^15.2.0",
-    "react-hyperscript": "^2.4.0"
+    "react-hyperscript": "^2.4.0",
+    "react-redux": "^4.4.5",
+    "redux": "^3.5.2",
+    "redux-immutablejs": "0.0.8",
+    "redux-thunk": "^2.1.0"
   },
   "devDependencies": {
     "browserify": "^13.0.1",

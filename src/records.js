@@ -11,7 +11,6 @@ const Filter = Immutable.Record({
 const Layout = Immutable.Record({
   name: undefined,
   options: Immutable.Map(),
-  filters: new Filter(),
 })
 
 module.exports = { Filter, Layout }

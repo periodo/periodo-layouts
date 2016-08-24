@@ -3,14 +3,15 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , Immutable = require('immutable')
+    , { bindActionCreators } = require('redux')
+    , { connect } = require('react-redux')
     , enabledLayouts = require('./layouts')
-    , LayoutBlock = require('./LayoutBlock')
-    , LayoutSpec = require('./spec')
+    , LayoutContainer = require('./LayoutContainer')
     , { Filter, Layout } = require('./records')
-    , { notEmpty, keepItemsInSet } = require('./utils')
+    , { keepItemsInSet } = require('./utils')
 
 
-const LayoutBlockChooser = ({ onSelectLayoutBlock }) =>
+const LayoutChooser = ({ onSelectLayout }) =>
   h('div', [
     h('h2', 'Select layout'),
     h('ul', Object.keys(enabledLayouts).map(name =>
@@ -20,7 +21,7 @@ const LayoutBlockChooser = ({ onSelectLayoutBlock }) =>
             href: '',
             onClick: e => {
               e.preventDefault();
-              onSelectLayoutBlock(new Layout({ name }));
+              onSelectLayout(new Layout({ name }));
             }
           }, enabledLayouts[name].label)
         ]),
@@ -29,45 +30,71 @@ const LayoutBlockChooser = ({ onSelectLayoutBlock }) =>
     ))
   ])
 
+function mapStateToProps(state) {
+  return {
+    groups: state.groups,
+    errors: state.errors,
+  }
+}
 
-module.exports = React.createClass({
+const LayoutPanel = React.createClass({
   displayName: 'LayoutPanel',
 
   propTypes: {
-    onSpecChange: React.PropTypes.func.isRequired,
-    spec: React.PropTypes.instanceOf(LayoutSpec).isRequired,
+    addLayout: React.PropTypes.func.isRequired,
+    updateLayout: React.PropTypes.func.isRequired,
+
+    groups: React.PropTypes.instanceOf(Immutable.List).isRequired,
     data: React.PropTypes.instanceOf(Immutable.Map).isRequired,
     prov: React.PropTypes.object.isRequired,
   },
 
   getDataForLevel(i) {
-    const { spec } = this.props
+    const { groups } = this.props
 
     let { data } = this.props
 
-    if (i === 0) return data;
+    groups.slice(0, i).forEach(group => {
+      const filters = group.map(layout => {
+        const l = enabledLayouts[layout.name]
 
-    const filters = spec.layouts
-      .slice(0, i)
-      .flatMap(group => group.map(layout => layout.filters))
+        if (l.filterer) {
+          const filter = l.filterer(data, layout.options)
 
-    filters.forEach(filter => {
-      if (!filters) return true
+          if (filter) {
+            return new Filter().merge(filter)
+          }
+        }
 
-      const keptCollections = Immutable.Set(filter.collections || [undefined])
-          , keptPeriods = Immutable.Set(filter.periods || [undefined])
+        return null
+      }).filter(x => x)
 
-      if (notEmpty(keptCollections)) {
+      const keptCollections = filters
+        .map(f => f.collections)
+        .map(cs => Immutable.List().equals(cs) ? null : cs)
+        .flatten()
+        .toSet()
+        .filter(x => x !== undefined)
+
+      const keptPeriods = filters
+        .map(f => f.periods)
+        .map(cs => Immutable.List().equals(cs) ? null : cs)
+        .flatten()
+        .toSet()
+        .filter(x => x !== undefined)
+
+      if (keptCollections.size) {
         data = data.update('periodCollections', keepItemsInSet(keptCollections))
       }
 
-      if (notEmpty(keptPeriods)) {
+      if (keptPeriods.size) {
         data = data.update('periodCollections', collections =>
           collections
             .map(c => c.update('definitions', keepItemsInSet(keptPeriods)))
             .filter(c => c.get('definitions').size > 0)
         )
       }
+
     })
 
     return data
@@ -87,47 +114,108 @@ module.exports = React.createClass({
   },
 
   render() {
-    const { spec, onSpecChange } = this.props
+    const {
+      groups,
+      errors,
+      addLayout,
+      updateLayout,
+      addLayoutGroup,
+      removeLayoutGroup,
+    } = this.props
 
-    const layoutGroups = spec.layouts.map((group, i) =>
-      group.size === 0
-        ? h(LayoutBlockChooser, {
-            onSelectLayoutBlock: layout =>
-              onSpecChange(spec
-                .addLayoutBlock(i, Infinity, layout)
-                .addLayoutGroup()
-              )
-          })
-        : group.map((layout, j) =>
-            h(LayoutBlock, {
-              key: j,
-              name: layout.name,
-              options: layout.options,
+    const layoutGroups = groups.map((group, i) =>
+      h('div', { style: { position: 'relative' }}, [
+        h('div', {
+          style: {
+            position: 'absolute',
+            top: -38,
+            right: -17,
+          }
+        }, h('a', {
+          href: '',
+          onClick: e => {
+            e.preventDefault();
+            removeLayoutGroup(i);
+          },
+          style: {
+            padding: '0px 6px',
+            fontSize: 50,
+            background: 'red',
+            color: 'white',
+            fontWeight: 'bold',
+            textDecoration: 'none',
+          }
+        }, 'X')),
 
-              data: this.getDataForLevel(i),
-              prov: this.props.prov,
+        group.size === 0
+          ? h(LayoutChooser, {
+              onSelectLayout: layout => addLayout(i, Infinity, layout)
+            })
+          : group.map((layout, j) =>
+              h(LayoutContainer, {
+                key: j,
+                name: layout.name,
+                options: layout.options,
 
-              onLayoutChange: opts =>
-                onSpecChange(spec.updateLayout(i, j, opts))
-            })).toArray()
+                updateOptions: options => {
+                  updateLayout(i, j, { options });
+                  setTimeout(() => {
+                    this.forceUpdate()
+                  }, 0);
+                },
+
+                data: this.getDataForLevel(i),
+                prov: this.props.prov,
+              })
+            ).toArray()
+      ])
     ).toArray()
 
-    return h('div', {
-      style: {
-        padding: '1em',
-        width: '90%',
-        background: '#999',
-      }
-    }, layoutGroups.map(group => h('div', {
-      style: {
-        display: group.size > 0 ? 'flex' : 'block',
-        justifyContent: 'space-around',
-        background: '#fcfcfc',
-        margin: '1em',
-        padding: '1em',
-        border: '1px solid #666',
+    return (
+      h('div', [
+        errors.size > 0 && h('pre', {
+          style: {
+            background: 'red',
+            fontWeight: 'bold',
+          }
+        }, errors.toArray().map((err, i) =>
+          h('li', { key: i }, err.stack || err.toString())
+        )),
 
-      }
-    }, group)))
+        h('div', {
+          style: {
+            padding: '1em',
+            width: '90%',
+            background: '#999',
+          }
+        }, layoutGroups.map(group => h('div', {
+          style: {
+            display: group.size > 0 ? 'flex' : 'block',
+            justifyContent: 'space-around',
+            background: '#fcfcfc',
+            margin: '1em',
+            padding: '1em',
+            border: '1px solid #666',
+
+          }
+        }, group))),
+
+        h('div', { style: { textAlign: 'center', marginTop: '1em' }}, [
+          h('button', {
+            onClick: () => { addLayoutGroup() },
+            style: {
+              fontSize: '50px'
+            }
+          }, ' + ')
+        ])
+
+      ]
+      )
+    )
   }
 })
+
+module.exports = connect(
+  mapStateToProps,
+  dispatch => bindActionCreators(require('./actions'), dispatch)
+)(LayoutPanel);

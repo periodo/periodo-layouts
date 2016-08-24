@@ -7,15 +7,14 @@ const h = require('react-hyperscript')
     , { isReactComponent } = require('./utils')
 
 
-module.exports = React.createClass({
-  displayName: 'LayoutBlock',
+const LayoutContainer = React.createClass({
+  displayName: 'LayoutContainer',
 
   propTypes: {
     data: React.PropTypes.instanceOf(Immutable.Map).isRequired,
     prov: React.PropTypes.object.isRequired,
-
     name: React.PropTypes.oneOf(Object.keys(layouts)).isRequired,
-    options: React.PropTypes.instanceOf(Immutable.Map),
+    options: React.PropTypes.instanceOf(Immutable.Map).isRequired,
   },
 
   componentWillUpdate(nextProps) {
@@ -84,3 +83,5 @@ module.exports = React.createClass({
     )
   }
 })
+
+module.exports = LayoutContainer;
