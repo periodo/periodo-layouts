@@ -1,37 +1,49 @@
 "use strict";
 
+/* eslint no-unused-vars: 0 */
+
 const h = require('react-hyperscript')
     , React = require('react')
-
 
 exports.label = 'Period list';
 
 exports.description = 'Simple list of periods';
 
-/*
-exports.handler = React.createClass({
+const reactHandler = React.createClass({
   render() {
-    const { data } = this.props
+    const { data, prov, setOptions } = this.props
 
     const periods = data
       .get('periodCollections')
       .flatMap(c => c.get('definitions'))
+      .take(15)
+      .toArray()
 
     return h('ul', periods.map(period =>
       h('li', { key: period.get('id') }, period.get('label'))
-    ).toArray())
+    ))
   }
 })
-*/
 
-exports.handler = {
+const domHandler = {
   init(el, { data, prov, setOptions }) {
     this.el = el;
-    this.counter = 1;
   },
 
-  update({ prov, setOptions }) {
-    this.el.innerHTML = `Updated ${this.counter} times`;
-    this.counter += 1;
+  update({ data, prov, setOptions }) {
+    const periods = data
+      .get('periodCollections')
+      .flatMap(c => c.get('definitions'))
+      .take(15)
+      .toArray()
+
+    this.el.innerHTML = `
+      <ul>
+        ${periods.map(p => `<li>${p.get('label')}</li>`).join('')}
+      </ul>
+    `
+
   }
 }
+
+module.exports = domHandler;
