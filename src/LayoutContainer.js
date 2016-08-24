@@ -4,8 +4,11 @@ const h = require('react-hyperscript')
     , React = require('react')
     , Immutable = require('immutable')
     , layouts = require('./layouts')
-    , { isReactComponent } = require('./utils')
 
+
+function isReactComponent(obj) {
+  return 'isReactComponent' in (obj.prototype || {})
+}
 
 const LayoutContainer = React.createClass({
   displayName: 'LayoutContainer',

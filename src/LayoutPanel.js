@@ -8,8 +8,11 @@ const h = require('react-hyperscript')
     , enabledLayouts = require('./layouts')
     , LayoutContainer = require('./LayoutContainer')
     , { Filter, Layout } = require('./records')
-    , { keepItemsInSet } = require('./utils')
 
+
+function keepItemsInSet(toKeep) {
+  return set => set.filter((_, id) => toKeep.has(id))
+}
 
 const LayoutChooser = ({ onSelectLayout }) =>
   h('div', [
