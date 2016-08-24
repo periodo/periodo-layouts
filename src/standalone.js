@@ -11,7 +11,7 @@ const loadingEl = document.getElementById('layout-loading')
     , containerEl = document.getElementById('layout-container')
 
 
-const PERIODO_URL = 'https://n2t.net/ark:/99152/p0';
+const PERIODO_URL = 'https://test.perio.do/d.jsonld'
 
 function init() {
   Promise.all([
