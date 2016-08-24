@@ -15,7 +15,7 @@ module.exports = ({ initialState, data, prov }) => {
     initialState,
     compose(
       applyMiddleware(thunk),
-      window.devToolsExtension ? window.devToolsExtension() : a => a
+      (window || {}).devToolsExtension ? window.devToolsExtension() : a => a
     )
   )
 

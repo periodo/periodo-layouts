@@ -1,45 +1,67 @@
 "use strict";
 
+require('isomorphic-fetch');
+
 const qs = require('qs')
     , ReactDOM = require('react-dom')
     , Immutable = require('immutable')
     , { resetLayoutGroups } = require('./actions')
+    , { renderToString } = require('react-dom/server')
 
 
-const loadingEl = document.getElementById('layout-loading')
-    , listEl = document.getElementById('layout-list')
-    , containerEl = document.getElementById('layout-container')
+// TODO: Make configurable/load from static file?
+function loadData() {
+  const PERIODO_URL = 'https://test.perio.do/'
 
-
-const PERIODO_URL = 'https://test.perio.do'
-
-function init() {
-  Promise.all([
+  return Promise.all([
     fetch(`${PERIODO_URL}/d.jsonld`).then(resp => resp.json()),
     fetch(`${PERIODO_URL}/h`).then(resp => resp.json())
-  ]).then(([dataset, prov]) => {
-    window.dataset = Immutable.fromJS(dataset);
-    window.prov = prov;
-
-    listEl.classList.remove('hide');
-    loadingEl.classList.add('hide');
-
-    const root = require('./Root')({
-      data: window.dataset,
-      prov: window.prov,
-    });
-
-    const { store } = root.props
-
-    store.dispatch(resetLayoutGroups(window.location.hash.slice(1)));
-
-    store.subscribe(() => {
-      window.location.hash = qs.stringify({ groups: store.getState().groups.toJS() })
-    });
-
-    ReactDOM.render(root, containerEl);
-  })
+  ])
 }
 
+function getInitialLayouts() {
+  if (process.browser) {
+    return window.location.hash.slice(1);
+  }
+
+  // TODO: Improve!
+  return process.argv[2]
+}
+
+function renderToDOM(component) {
+  const loadingEl = document.getElementById('layout-loading')
+      , listEl = document.getElementById('layout-list')
+      , containerEl = document.getElementById('layout-container')
+      , { store } = component.props
+
+  listEl.classList.remove('hide');
+  loadingEl.classList.add('hide');
+
+  store.subscribe(() => {
+    window.location.hash = qs.stringify({ groups: store.getState().groups.toJS() })
+  });
+
+  ReactDOM.render(component, containerEl);
+}
+
+function renderToStdout(component) {
+  process.stdout.write(renderToString(component));
+}
+
+function init() {
+  return loadData().then(([dataJSON, prov]) => {
+    const data = Immutable.fromJS(dataJSON)
+        , component = require('./Root')({ data, prov })
+        , render = process.browser ? renderToDOM : renderToStdout
+        , { store } = component.props
+
+    Promise.resolve(store.dispatch(
+      resetLayoutGroups(getInitialLayouts())
+    )).then(() => {
+      render(component)
+    })
+
+  })
+}
 
 init();
