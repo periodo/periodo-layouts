@@ -7,37 +7,38 @@ const h = require('react-hyperscript')
     , { connect } = require('react-redux')
     , enabledLayouts = require('./layouts')
     , LayoutContainer = require('./LayoutContainer')
-    , { Filter, Layout } = require('./records')
+    , LayoutPicker = require('./LayoutPicker')
+    , { Filter } = require('./records')
 
+
+const styles = {
+  removeLayoutGroupMark: {
+    padding: '0px 6px',
+    fontSize: 50,
+    background: 'red',
+    color: 'white',
+    fontWeight: 'bold',
+    textDecoration: 'none',
+  },
+
+  removeLayoutGroupMarkContainer: {
+    position: 'absolute',
+    top: -38,
+    right: -17,
+  },
+}
 
 function keepItemsInSet(toKeep) {
   return set => set.filter((_, id) => toKeep.has(id))
 }
 
-const LayoutChooser = ({ onSelectLayout }) =>
-  h('div', [
-    h('h2', 'Select layout'),
-    h('ul', Object.keys(enabledLayouts).map(name =>
-      h('li', { key: name }, [
-        h('h3', [
-          h('a', {
-            href: '',
-            onClick: e => {
-              e.preventDefault();
-              onSelectLayout(new Layout({ name }));
-            }
-          }, enabledLayouts[name].label)
-        ]),
-        h('p', enabledLayouts[name].description)
-      ])
-    ))
-  ])
-
-function mapStateToProps(state) {
-  return {
-    groups: state.groups,
-    errors: state.errors,
-  }
+function flattenFilters(type, filters) {
+  return filters
+    .map(f => f[type])
+    .map(cs => Immutable.List().equals(cs) ? null : cs)
+    .flatten()
+    .toSet()
+    .filter(x => x !== undefined)
 }
 
 const LayoutPanel = React.createClass({
@@ -72,19 +73,8 @@ const LayoutPanel = React.createClass({
         return null
       }).filter(x => x)
 
-      const keptCollections = filters
-        .map(f => f.collections)
-        .map(cs => Immutable.List().equals(cs) ? null : cs)
-        .flatten()
-        .toSet()
-        .filter(x => x !== undefined)
-
-      const keptPeriods = filters
-        .map(f => f.periods)
-        .map(cs => Immutable.List().equals(cs) ? null : cs)
-        .flatten()
-        .toSet()
-        .filter(x => x !== undefined)
+      const keptCollections = flattenFilters('collections', filters)
+          , keptPeriods = flattenFilters('periods', filters)
 
       if (keptCollections.size) {
         data = data.update('periodCollections', keepItemsInSet(keptCollections))
@@ -97,23 +87,9 @@ const LayoutPanel = React.createClass({
             .filter(c => c.get('definitions').size > 0)
         )
       }
-
     })
 
     return data
-  },
-
-  updateKeptItemsForLevel(i, j, category, keptIDs) {
-    const { layoutFilters } = this.state
-
-    // `category` will either be "period" or "collection"
-
-    const newLayoutFilters = (
-      layoutFilters.update(i, Immutable.List(), levelFilters =>
-        levelFilters.update(j, new Filter(), filter =>
-          filter.set(category, Immutable.Set(keptIDs)))))
-
-    this.setState({ layoutFilters: newLayoutFilters });
   },
 
   render() {
@@ -128,32 +104,16 @@ const LayoutPanel = React.createClass({
 
     const layoutGroups = groups.map((group, i) =>
       h('div', { style: { position: 'relative' }}, [
-        h('div', {
-          style: {
-            position: 'absolute',
-            top: -38,
-            right: -17,
-          }
-        }, h('a', {
-          href: '',
-          onClick: e => {
-            e.preventDefault();
-            removeLayoutGroup(i);
-          },
-          style: {
-            padding: '0px 6px',
-            fontSize: 50,
-            background: 'red',
-            color: 'white',
-            fontWeight: 'bold',
-            textDecoration: 'none',
-          }
-        }, 'X')),
+        h('div', { style: styles.removeLayoutGroupMark }, [
+          h('a', {
+            href: '',
+            onClick: e => { e.preventDefault(); removeLayoutGroup(i); },
+            style: styles.removeLayoutGroupMark
+          }, 'X')
+        ]),
 
         group.size === 0
-          ? h(LayoutChooser, {
-              onSelectLayout: layout => addLayout(i, Infinity, layout)
-            })
+          ? h(LayoutPicker, { onSelectLayout: addLayout.bind(null, i, Infinity) })
           : group.map((layout, j) =>
               h(LayoutContainer, {
                 key: j,
@@ -219,6 +179,9 @@ const LayoutPanel = React.createClass({
 })
 
 module.exports = connect(
-  mapStateToProps,
+  state => ({
+    groups: state.groups,
+    errors: state.errors,
+  }),
   dispatch => bindActionCreators(require('./actions'), dispatch)
 )(LayoutPanel);
