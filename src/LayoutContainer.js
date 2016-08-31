@@ -14,6 +14,7 @@ const LayoutContainer = React.createClass({
   displayName: 'LayoutContainer',
 
   propTypes: {
+    editing: React.PropTypes.bool,
     data: React.PropTypes.instanceOf(Immutable.Map).isRequired,
     prov: React.PropTypes.object.isRequired,
     name: React.PropTypes.oneOf(Object.keys(layouts)).isRequired,
@@ -73,11 +74,12 @@ const LayoutContainer = React.createClass({
   },
 
   render() {
-    const layout = this.getLayout()
+    const { name, editing } = this.props
+        , layout = this.getLayout()
 
     return (
-      h(`div .LayoutContainer .LayoutContainer-${this.props.name}`, [
-        h('h3', { title: layout.description }, layout.label),
+      h(`div .LayoutContainer .LayoutContainer-${name}`, [
+        editing && h('h3', { title: layout.description }, layout.label),
 
         isReactComponent(layout.handler)
           ? h(layout.handler, this.props)

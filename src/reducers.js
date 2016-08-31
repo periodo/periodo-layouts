@@ -6,6 +6,9 @@ const Immutable = require('immutable')
 const {
   GENERAL_ERROR,
 
+  ENABLE_EDITING,
+  DISABLE_EDITING,
+
   RESET_LAYOUT_GROUPS,
   ADD_LAYOUT_GROUP,
   REMOVE_LAYOUT_GROUP,
@@ -31,6 +34,7 @@ const {
 //     ])
 //   ])
 const State = Immutable.Record({
+  editing: false,
   groups: Immutable.fromJS([ [] ]),
   errors: Immutable.List()
 })
@@ -41,6 +45,10 @@ module.exports = createReducer(new State(),  {
 
     return state.update('errors', errors => errors.push(msg))
   },
+
+  [ENABLE_EDITING]: state => state.set('editing', true),
+
+  [DISABLE_EDITING]: state => state.set('editing', false),
 
   [RESET_LAYOUT_GROUPS]: (state, action) => {
     const { groups } = action

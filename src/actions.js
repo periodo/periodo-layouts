@@ -15,10 +15,16 @@ const {
   ADD_LAYOUT,
   REMOVE_LAYOUT,
   UPDATE_LAYOUT,
+
+  ENABLE_EDITING,
+  DISABLE_EDITING,
 } = require('./consts')
 
 module.exports = {
   addError,
+
+  enableEditing,
+  disableEditing,
 
   resetLayoutGroups,
   addLayoutGroup,
@@ -33,6 +39,18 @@ function addError(msg) {
   return {
     type: GENERAL_ERROR,
     msg
+  }
+}
+
+function enableEditing() {
+  return {
+    type: ENABLE_EDITING
+  }
+}
+
+function disableEditing() {
+  return {
+    type: DISABLE_EDITING
   }
 }
 

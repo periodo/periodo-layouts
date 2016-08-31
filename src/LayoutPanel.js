@@ -77,8 +77,11 @@ const LayoutPanel = React.createClass({
 
   render() {
     const {
+      editing,
       groups,
       errors,
+      enableEditing,
+      disableEditing,
       addLayout,
       updateLayout,
       addLayoutGroup,
@@ -87,7 +90,8 @@ const LayoutPanel = React.createClass({
 
     const layoutGroups = groups.toArray().map((group, i) =>
       h('div', { style: { position: 'relative' }}, [
-        h('a', {
+
+        editing && h('a', {
           href: '',
           onClick: e => { e.preventDefault(); removeLayoutGroup(i); },
           style: {
@@ -98,11 +102,12 @@ const LayoutPanel = React.createClass({
           }
         }, '❌'),
 
-        group.size === 0
+        (editing && group.size === 0)
           ? h(LayoutPicker, { onSelectLayout: addLayout.bind(null, i, Infinity) })
           : group.toArray().map((layout, j) =>
               h(LayoutContainer, {
                 key: j,
+                editing,
                 name: layout.name,
                 options: layout.options,
 
@@ -122,6 +127,19 @@ const LayoutPanel = React.createClass({
 
     return (
       h('main .LayoutPanel', [
+        h('div', [
+          h('label', [
+            'Edit ',
+            h('input', {
+              type: 'checkbox',
+              checked: editing,
+              onChange: editing ? disableEditing : enableEditing
+            })
+          ]),
+        ]),
+
+        h('hr'),
+
         errors.size > 0 && h('pre', {
           style: {
             background: 'red',
@@ -133,7 +151,7 @@ const LayoutPanel = React.createClass({
 
         h('div', layoutGroups),
 
-        h('div', [
+        editing && h('div', [
           h('button', {
             onClick: () => { addLayoutGroup() },
             style: {
@@ -149,6 +167,7 @@ const LayoutPanel = React.createClass({
 
 module.exports = connect(
   state => ({
+    editing: state.editing,
     groups: state.groups,
     errors: state.errors,
   }),
