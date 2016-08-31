@@ -11,23 +11,6 @@ const h = require('react-hyperscript')
     , { Filter } = require('./records')
 
 
-const styles = {
-  removeLayoutGroupMark: {
-    padding: '0px 6px',
-    fontSize: 50,
-    background: 'red',
-    color: 'white',
-    fontWeight: 'bold',
-    textDecoration: 'none',
-  },
-
-  removeLayoutGroupMarkContainer: {
-    position: 'absolute',
-    top: -38,
-    right: -17,
-  },
-}
-
 function keepItemsInSet(toKeep) {
   return set => set.filter((_, id) => toKeep.has(id))
 }
@@ -102,19 +85,22 @@ const LayoutPanel = React.createClass({
       removeLayoutGroup,
     } = this.props
 
-    const layoutGroups = groups.map((group, i) =>
+    const layoutGroups = groups.toArray().map((group, i) =>
       h('div', { style: { position: 'relative' }}, [
-        h('div', { style: styles.removeLayoutGroupMark }, [
-          h('a', {
-            href: '',
-            onClick: e => { e.preventDefault(); removeLayoutGroup(i); },
-            style: styles.removeLayoutGroupMark
-          }, 'X')
-        ]),
+        h('a', {
+          href: '',
+          onClick: e => { e.preventDefault(); removeLayoutGroup(i); },
+          style: {
+            float: 'left',
+            textDecoration: 'none',
+            color: 'black',
+            background: 'red',
+          }
+        }, '❌'),
 
         group.size === 0
           ? h(LayoutPicker, { onSelectLayout: addLayout.bind(null, i, Infinity) })
-          : group.map((layout, j) =>
+          : group.toArray().map((layout, j) =>
               h(LayoutContainer, {
                 key: j,
                 name: layout.name,
@@ -130,12 +116,12 @@ const LayoutPanel = React.createClass({
                 data: this.getDataForLevel(i),
                 prov: this.props.prov,
               })
-            ).toArray()
+            )
       ])
-    ).toArray()
+    )
 
     return (
-      h('div', [
+      h('main', [
         errors.size > 0 && h('pre', {
           style: {
             background: 'red',
@@ -145,35 +131,18 @@ const LayoutPanel = React.createClass({
           h('li', { key: i }, err.stack || err.toString())
         )),
 
-        h('div', {
-          style: {
-            padding: '1em',
-            width: '90%',
-            background: '#999',
-          }
-        }, layoutGroups.map(group => h('div', {
-          style: {
-            display: group.size > 0 ? 'flex' : 'block',
-            justifyContent: 'space-around',
-            background: '#fcfcfc',
-            margin: '1em',
-            padding: '1em',
-            border: '1px solid #666',
+        h('div', layoutGroups),
 
-          }
-        }, group))),
-
-        h('div', { style: { textAlign: 'center', marginTop: '1em' }}, [
+        h('div', [
           h('button', {
             onClick: () => { addLayoutGroup() },
             style: {
-              fontSize: '50px'
+              padding: '.2em 1em',
+              fontSize: '36px'
             }
-          }, ' + ')
+          }, 'Add')
         ])
-
-      ]
-      )
+      ])
     )
   }
 })
