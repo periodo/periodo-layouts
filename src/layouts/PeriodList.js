@@ -46,4 +46,4 @@ const domHandler = {
   }
 }
 
-module.exports = domHandler;
+exports.handler = domHandler;
