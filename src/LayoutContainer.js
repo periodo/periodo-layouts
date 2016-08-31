@@ -76,7 +76,7 @@ const LayoutContainer = React.createClass({
     const layout = this.getLayout()
 
     return (
-      h('div', { style: { margin: '1em' }}, [
+      h(`div .LayoutContainer .LayoutContainer-${this.props.name}`, [
         h('h3', { title: layout.description }, layout.label),
 
         isReactComponent(layout.handler)

@@ -121,7 +121,7 @@ const LayoutPanel = React.createClass({
     )
 
     return (
-      h('main', [
+      h('main .LayoutPanel', [
         errors.size > 0 && h('pre', {
           style: {
             background: 'red',

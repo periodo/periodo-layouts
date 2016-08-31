@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
 
 module.exports = function LayoutPicker({ onSelectLayout }) {
   return (
-    h('div', [
+    h('div .LayoutPicker', [
       h('h2', 'Select layout'),
       h('ul', Object.keys(enabledLayouts).map(name =>
         h('li', { key: name }, [
