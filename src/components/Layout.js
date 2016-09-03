@@ -50,10 +50,15 @@ const Layout = React.createClass({
       if (!isReactComponent(layout.handler)) {
         this.mountNonReactComponent();
       }
+    }
+  },
+
+  componentDidUpdate() {
+    const { layout } = this.props
 
     // Layout type has not changed, but we do need to manually update
     // non-react layouts
-    } else if (!isReactComponent(layout.handler)) {
+    if (!isReactComponent(layout.handler)) {
       this.updateNonReactComponent();
     }
   },
@@ -63,6 +68,7 @@ const Layout = React.createClass({
 
     if (!isReactComponent(layout.handler)) {
       this.mountNonReactComponent();
+      this.updateNonReactComponent();
     }
   },
 
@@ -80,7 +86,6 @@ const Layout = React.createClass({
         , handler = this._nonReactLayoutHandler = Object.create(layout.handler)
 
     handler.init.call(handler, container, this.getChildProps());
-    this.updateNonReactComponent();
   },
 
   unmountNonReactComponent() {
