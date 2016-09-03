@@ -1,8 +1,8 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , enabledLayouts = require('./layouts')
-    , { Layout } = require('./records')
+    , enabledLayouts = require('../layouts')
+    , { Layout } = require('../records')
 
 module.exports = function LayoutPicker({ onSelectLayout }) {
   return (

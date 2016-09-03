@@ -3,7 +3,7 @@
 const qs = require('qs')
     , Immutable = require('immutable')
     , registeredLayouts = Object.keys(require('./layouts'))
-    , { Layout, Filter } = require('./records')
+    , { Layout } = require('./records')
 
 const {
   GENERAL_ERROR,
@@ -32,7 +32,7 @@ module.exports = {
 
   addLayout,
   removeLayout,
-  updateLayout,
+  updateLayoutOptions,
 }
 
 function addError(msg) {
@@ -151,9 +151,9 @@ function removeLayout(groupIndex, layoutIndex) {
   }
 }
 
-function updateLayout(groupIndex, layoutIndex, { options, filters }) {
+function updateLayoutOptions(groupIndex, layoutIndex, options) {
   return (dispatch, getState) => {
-    if (!options && !filters) return;
+    if (!options) return;
 
     if (!getState().groups.hasIn([groupIndex, layoutIndex])) {
       dispatch(addError(`No layout at (${groupIndex},${layoutIndex})`))
@@ -161,20 +161,13 @@ function updateLayout(groupIndex, layoutIndex, { options, filters }) {
     }
 
     try {
-      if (filters) {
-        filters = new Filter().merge(filters)
-      }
-
-      if (options) {
-        options = Immutable.fromJS(JSON.parse(JSON.stringify(options)));
-      }
+      options = Immutable.fromJS(JSON.parse(JSON.stringify(options)));
 
       dispatch({
         type: UPDATE_LAYOUT,
         groupIndex,
         layoutIndex,
         options,
-        filters
       })
     } catch (e) {
       dispatch(addError(e));

@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , thunk = require('redux-thunk').default
     , { Provider } = require('react-redux')
     , rootReducer = require('./reducers')
-    , LayoutPanel = require('./LayoutPanel')
+    , LayoutPanel = require('./components/LayoutPanel')
 
 
 

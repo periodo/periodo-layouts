@@ -11,7 +11,7 @@ const qs = require('qs')
 
 // TODO: Make configurable/load from static file?
 function loadData() {
-  const PERIODO_URL = 'https://test.perio.do/'
+  const PERIODO_URL = 'http://localhost:5001'
 
   return Promise.all([
     fetch(`${PERIODO_URL}/d.jsonld`).then(resp => resp.json()),
@@ -38,7 +38,13 @@ function renderToDOM(component) {
   loadingEl.classList.add('hide');
 
   store.subscribe(() => {
-    window.location.hash = qs.stringify({ groups: store.getState().groups.toJS() })
+    const groups = store.getState().groups
+      .filter(group => group && group.size)
+      .toJS()
+
+    if (groups.length) {
+      window.location.hash = qs.stringify({ groups })
+    }
   });
 
   ReactDOM.render(component, containerEl);

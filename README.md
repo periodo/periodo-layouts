@@ -12,19 +12,50 @@ A visualization sandbox and gallery for the [PeriodO] dataset.
 
 Once the application has been compiled, open `index.html`.
 
-## Creating a new visualization
 
-To create a visualization, first create a new module in the `layouts` folder.
-Visualizations can be React components (see `layouts/changelog_summary`) or
-simply work with a DOM node (see `layouts/statistics`). Then add the module to
-array in `layouts/index.js`.
+## Architecture
 
-Visualizations have access to the dataset itself (exposed as an ImmutableJS
-Map) as well as its provenance graph (exposed as a plain object). See the
-examples above for guidance.
+   Data flow     *          DOM Components
+  ===========    *         ================
+                 *
+   Dataset       *
+      |          *
+      |          *
+------|--------  *    -------- --------
+      |          *   |        |        |  \            \
+      |          *   |        |        |   |            |
+   Dataset       *   | Layout | Layout |   |<-- Group   |
+      |          *   |        |        |   |            |
+      v          *   |        |        |  /             |
+---(filters)---  *    -------- --------                 |
+      |          *       |        |        \            |
+      |          *       |        |         |           |
+   Dataset'      *       | Layout |         | <-- Group | <--- Panel
+      |          *       |        |         |           |
+      v          *       |        |        /            |
+---(filters)---  *    -------- --------                 |
+      |          *   |        |        |  \             |
+      |          *   |        |        |   |            |
+   Dataset''     *   | Layout | Layout |   |<-- Group   |
+                 *   |        |        |   |            |
+                 *   |        |        |  /            /
+---------------  *    -------- --------
 
-Once your visualization is complete, submit a pull request to this repository
-if you would would like it to be considered for inclusion among enabled
-layouts.
+A Panel consists of one or more Groups, and a Group consists of one or
+more Layouts.
+
+Layouts are passed a dataset and are expected to render some HTML or SVG.
+Layouts can indicate that they have filtered some subset of that dataset, for
+example, by brushing a range on a timeline or map. Layouts will only be aware
+of the parts of the dataset that have been filtered by preceeding groups.
+
+Layouts can either be React components, or JavaScript objects which contain
+an `init()` method (and an optional `update()` method).
+
+## Creating a new layout
+
+To create a layout, first create a new module in the `layouts` folder.
+Then add the module to `module.exports` in `layouts/index.js`.
+
 
 [PeriodO]: https://perio.do/
