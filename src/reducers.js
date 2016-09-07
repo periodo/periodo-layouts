@@ -19,7 +19,7 @@ const {
 } = require('./consts')
 
 const State = Immutable.Record({
-  editing: false,
+  editing: true,
   groups: Immutable.List([ [] ]),
   renderedGroups: Immutable.List([]),
   errors: Immutable.List()

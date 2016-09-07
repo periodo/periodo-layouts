@@ -7,6 +7,10 @@ const h = require('react-hyperscript')
     , { connect } = require('react-redux')
     , LayoutGroup = require('./LayoutGroup')
 
+const baseStyles = {
+  fontFamily: 'sans-serif',
+  lineHeight: 1.33,
+}
 
 function mapStateToProps(state) {
   return {
@@ -37,7 +41,7 @@ function LayoutPanel ({
   addLayoutGroup,
 }) {
   return (
-    h('main .LayoutPanel', [
+    h('main .LayoutPanel', { style: baseStyles }, [
       h('div', [
         h('label', [
           'Edit ',

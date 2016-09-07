@@ -4,8 +4,10 @@ const h = require('react-hyperscript')
     , React = require('react')
     , Immutable = require('immutable')
     , { connect } = require('react-redux')
+    , { Close, Block } = require('rebass')
+    , { Flex } = require('reflexbox')
     , enabledLayouts = require('../layouts')
-    , { updateLayoutOptions } = require('../actions')
+    , { updateLayoutOptions, removeLayout } = require('../actions')
 
 
 function isReactComponent(obj) {
@@ -20,6 +22,18 @@ function mapStateToProps(state, ownProps) {
     layout: enabledLayouts[layout.name],
     editing: state.editing
   })
+}
+
+function mapDispatchToProps(dispatch, ownProps) {
+  const { groupIndex, layoutIndex } = ownProps
+
+  return {
+    updateOptions: options =>
+      dispatch(updateLayoutOptions(groupIndex, layoutIndex, options)),
+
+    removeLayout: () =>
+      dispatch(removeLayout(groupIndex, layoutIndex))
+  }
 }
 
 const Layout = React.createClass({
@@ -109,11 +123,20 @@ const Layout = React.createClass({
   },
 
   render() {
-    const { layout, name, editing } = this.props
+    const { layout, name, editing, removeLayout } = this.props
 
     return (
-      h(`div .Layout .Layout-${name}`, [
-        editing && h('h3', { title: layout.description }, layout.label),
+      h(`div .Layout .Layout-${name}`, {
+        style: {
+          display: 'inline-block'
+        }
+      }, [
+        editing && h(Block, { m: 0, color: 'white', backgroundColor: 'primaryAltDarkest' }, [
+          h(Flex, { px: 1, justify: 'space-between' }, [
+            h('h3', { title: layout.description }, layout.label),
+            h(Close, { onClick: removeLayout }),
+          ])
+        ]),
 
         isReactComponent(layout.handler)
           ? h(layout.handler, this.getChildProps())
@@ -123,10 +146,4 @@ const Layout = React.createClass({
   }
 })
 
-module.exports = connect(
-  mapStateToProps,
-  (dispatch, { groupIndex, layoutIndex }) => ({
-    updateOptions: options =>
-      dispatch(updateLayoutOptions(groupIndex, layoutIndex, options))
-  })
-)(Layout);
+module.exports = connect(mapStateToProps, mapDispatchToProps)(Layout);

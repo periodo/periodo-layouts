@@ -1,9 +1,9 @@
 "use strict";
 
 const h = require('react-hyperscript')
-    , Immutable = require('immutable')
     , { bindActionCreators } = require('redux')
     , { connect } = require('react-redux')
+    , { Block, Close } = require('rebass')
     , enabledLayouts = require('../layouts')
     , applyGroupFilters = require('../apply_group_filters')
     , LayoutPicker = require('./LayoutPicker')
@@ -33,26 +33,16 @@ function LayoutGroup({
   removeLayoutGroup,
 }) {
   return (
-    h('div', {
-      style: {
-        position: 'relative'
+    h(Block, {
+      style: !editing ? undefined : {
+        border: '1px solid #ccc',
       }
     }, [
-      editing && (
-        h('a', {
-          href: '',
-          onClick: e => {
-            e.preventDefault();
-            removeLayoutGroup(groupIndex);
-          },
-          style: {
-            float: 'left',
-            textDecoration: 'none',
-            color: 'black',
-            background: 'red',
-          }
-        }, '❌')
-      ),
+    /*
+      editing && h(Close, {
+        onClick: () => removeLayoutGroup(groupIndex)
+      }),
+      */
 
       editing && layouts.size === 0 && (
         h(LayoutPicker, {
