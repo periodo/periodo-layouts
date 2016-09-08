@@ -5,7 +5,7 @@ const h = require('react-hyperscript')
     , Immutable = require('immutable')
     , { bindActionCreators } = require('redux')
     , { connect } = require('react-redux')
-    , { Button } = require('rebass')
+    , { Button, Space } = require('rebass')
     , LayoutGroup = require('./LayoutGroup')
 
 const baseStyles = {
@@ -40,6 +40,7 @@ function LayoutPanel ({
   disableEditing,
 
   addLayoutGroup,
+  resetLayoutGroups,
 }) {
   return (
     h('main .LayoutPanel', { style: baseStyles }, [
@@ -53,10 +54,23 @@ function LayoutPanel ({
           })
         ]),
 
+        h(Space, { x: 4 }),
+
         h('span', [
           'No. of groups: ',
           groupIDs.size
-        ])
+        ]),
+
+        h(Space, { x: 4 }),
+
+        h(Button, {
+          href: '',
+          backgroundColor: 'secondary',
+          onClick: e => {
+            e.preventDefault();
+            resetLayoutGroups('');
+          }
+        }, 'Reset')
       ]),
 
       h('hr'),
