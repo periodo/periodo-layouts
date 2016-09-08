@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , Immutable = require('immutable')
     , { connect } = require('react-redux')
-    , { Close, Block } = require('rebass')
+    , { Close, Block, Heading } = require('rebass')
     , { Flex } = require('reflexbox')
     , enabledLayouts = require('../layouts')
     , { updateLayoutOptions, removeLayout } = require('../actions')
@@ -132,10 +132,24 @@ const Layout = React.createClass({
           display: 'inline-block'
         }
       }, [
-        editing && h(Block, { m: 0, color: 'white', backgroundColor: 'primaryAltDarkest' }, [
-          h(Flex, { px: 1, justify: 'space-between' }, [
-            h('h3', { title: layout.description }, layout.label),
-            h(Close, { onClick: removeLayout }),
+        editing && h(Block, {
+          m: 0,
+          color: 'white',
+          backgroundColor: 'primaryAltDarkest'
+        }, [
+          h(Flex, {
+            px: 1,
+            justify: 'space-between'
+          }, [
+            h(Heading, {
+              level: 3,
+              title: layout.description,
+              my: 1
+            }, layout.label),
+
+            h(Close, {
+              onClick: removeLayout
+            }),
           ])
         ]),
 
