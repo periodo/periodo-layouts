@@ -113,12 +113,13 @@ const Layout = React.createClass({
   },
 
   getChildProps() {
-    const { data, options, updateOptions } = this.props
+    const { data, options, updateOptions, editing } = this.props
 
     return {
       data,
       options,
-      updateOptions
+      updateOptions,
+      editing,
     }
   },
 
