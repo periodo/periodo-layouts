@@ -5,6 +5,7 @@ const h = require('react-hyperscript')
     , Immutable = require('immutable')
     , { bindActionCreators } = require('redux')
     , { connect } = require('react-redux')
+    , { Button } = require('rebass')
     , LayoutGroup = require('./LayoutGroup')
 
 const baseStyles = {
@@ -78,12 +79,8 @@ function LayoutPanel ({
       )),
 
       editing && h('div', [
-        h('button', {
+        h(Button, {
           onClick: () => { addLayoutGroup() },
-          style: {
-            padding: '.2em 1em',
-            fontSize: '36px'
-          }
         }, 'Add')
       ])
     ])
