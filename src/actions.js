@@ -8,7 +8,7 @@ const qs = require('qs')
 const {
   GENERAL_ERROR,
 
-  RESET_LAYOUT_GROUPS,
+  CLEAR_LAYOUT_GROUPS,
   ADD_LAYOUT_GROUP,
   REMOVE_LAYOUT_GROUP,
 
@@ -55,53 +55,40 @@ function disableEditing() {
 }
 
 function resetLayoutGroups(groupSpec) {
-  try {
-    if (typeof groupSpec === 'string') {
-      groupSpec = qs.parse(groupSpec).groups
-    } else {
-      groupSpec = JSON.parse(JSON.stringify(groupSpec));
-    }
+  return (dispatch, getState) => {
+    try {
+      dispatch({ type: CLEAR_LAYOUT_GROUPS });
 
-    if (!groupSpec) {
-      groupSpec = [ [] ]
-    }
+      if (typeof groupSpec === 'string') {
+        groupSpec = qs.parse(groupSpec).groups
+      } else {
+        groupSpec = JSON.parse(JSON.stringify(groupSpec));
+      }
 
-    if (!Array.isArray(groupSpec)) {
-      throw new Error('Layout groups should be an array of arrays');
-    }
+      if (!groupSpec) {
+        groupSpec = [ [] ]
+      }
 
-    const groups = Immutable.List().withMutations(groupList => {
-      groupSpec.forEach((group, i) => {
+      if (!Array.isArray(groupSpec)) {
+        throw new Error('Layout groups should be an array of arrays');
+      }
 
+      groupSpec.forEach(group => {
         if (!Array.isArray(group)) {
           throw new Error('Layout groups should be an array of arrays');
         }
 
-        groupList.push(Immutable.List().withMutations(layoutList => {
-          group.forEach((layout, j) => {
-            try {
-              if (registeredLayouts.indexOf(layout.name) === -1) {
-                throw new Error(
-                  `Layout "${layout.name} is not a registered layout. ` +
-                  `Valid layout choices: ${registeredLayouts.join(', ')}`
-                )
-              }
+        dispatch(addLayoutGroup());
 
-              layoutList.push(new Layout().merge(layout));
-            } catch (e) {
-              throw new Error(`Problem adding layout from ${i},${j}:\n${e}`);
-            }
-          })
-        }))
+        const groupIndex = getState().keySeq().last()
+
+        group.forEach(({ name, options }) => {
+          dispatch(addLayout(groupIndex, name, options));
+        })
       })
-    })
-
-    return {
-      type: RESET_LAYOUT_GROUPS,
-      groups
+    } catch (e) {
+      return addError(e);
     }
-  } catch (e) {
-    return addError(e);
   }
 }
 
@@ -119,7 +106,7 @@ function removeLayoutGroup(groupIndex) {
   }
 }
 
-function addLayout(groupIndex, layoutIndex=Infinity, layout) {
+function addLayout(groupIndex, layoutIndex=Infinity, name, options) {
   return (dispatch, getState) => {
     if (!getState().groups.has(groupIndex)) {
       return dispatch(addError(
@@ -128,11 +115,13 @@ function addLayout(groupIndex, layoutIndex=Infinity, layout) {
       ))
     }
 
-    try {
-      layout = new Layout().merge(layout)
-    } catch (e) {
-      return dispatch(addError(e))
-    }
+    // FIXME: Check if layout exists in registered layouts
+
+    const layout = new Layout({
+      name,
+      options,
+      derivations: derivationsFromOptions(getState().dataset, name, options)
+    })
 
     dispatch({
       type: ADD_LAYOUT,
@@ -140,6 +129,8 @@ function addLayout(groupIndex, layoutIndex=Infinity, layout) {
       layoutIndex,
       layout,
     })
+
+    return dispatch(updateLayoutOptions(groupIndex, layoutIndex, options));
   }
 }
 
@@ -155,22 +146,49 @@ function updateLayoutOptions(groupIndex, layoutIndex, options) {
   return (dispatch, getState) => {
     if (!options) return;
 
-    if (!getState().groups.hasIn([groupIndex, layoutIndex])) {
+    const { groups, dataset } = getState()
+
+    let layout = groups.getIn([groupIndex, layoutIndex])
+
+    if (!layout) {
       dispatch(addError(`No layout at (${groupIndex},${layoutIndex})`))
       return;
     }
 
-    try {
-      options = Immutable.fromJS(JSON.parse(JSON.stringify(options)));
+    layout = layout
+      .set('options', options)
+      .set('derivations', derivationsFromOptions(
+        dataset,
+        layout.name,
+        options,
+        layout.derivations
+      ))
 
+    try {
       dispatch({
         type: UPDATE_LAYOUT,
         groupIndex,
         layoutIndex,
-        options,
+        layout,
       })
     } catch (e) {
       dispatch(addError(e));
     }
   }
+}
+
+
+// TODO: Allow this to be async?
+function derivationsFromOptions(dataset, layoutName, options, prevDerivations) {
+  let nextDerivations
+
+  options = Immutable.fromJS(JSON.parse(JSON.stringify(options)));
+
+  const { processor } = registeredLayouts[layoutName]
+
+  if (processor) {
+    nextDerivations = processor(dataset, options, prevDerivations)
+  }
+
+  return nextDerivations
 }

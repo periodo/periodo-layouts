@@ -2,6 +2,7 @@
 
 const Immutable = require('immutable')
     , { createReducer } = require('redux-immutablejs')
+    , { ApplicationState } = require('./records')
 
 const {
   GENERAL_ERROR,
@@ -9,7 +10,7 @@ const {
   ENABLE_EDITING,
   DISABLE_EDITING,
 
-  RESET_LAYOUT_GROUPS,
+  CLEAR_LAYOUT_GROUPS,
   ADD_LAYOUT_GROUP,
   REMOVE_LAYOUT_GROUP,
 
@@ -18,14 +19,9 @@ const {
   UPDATE_LAYOUT,
 } = require('./consts')
 
-const State = Immutable.Record({
-  editing: true,
-  groups: Immutable.List([ [] ]),
-  renderedGroups: Immutable.List([]),
-  errors: Immutable.List()
-})
 
-module.exports = createReducer(new State(),  {
+
+module.exports = createReducer(new ApplicationState(),  {
   [GENERAL_ERROR]: (state, action) => {
     const { msg } = action
 
@@ -38,21 +34,15 @@ module.exports = createReducer(new State(),  {
   [DISABLE_EDITING]: state =>
     state.set('editing', false),
 
-
-  [RESET_LAYOUT_GROUPS]: (state, action) => {
-    const { groups } = action
-
-    return state
-      .set('groups', groups)
-      .set('renderedGroups', groups.map((_, i) => i))
-  },
+  [CLEAR_LAYOUT_GROUPS]: state =>
+    state.delete('groups'),
 
   [ADD_LAYOUT_GROUP]: (state, action) => {
     const { before } = action
         , insertionIndex = state.renderedGroups.indexOf(before)
 
     return state
-      .update('groups', groups => groups.push(Immutable.List()))
+      .update('groups', groups => groups.push(new LayoutGroup()))
       .update(state =>
         state.update('renderedGroups', renderedGroups =>
           renderedGroups.splice(
@@ -87,12 +77,8 @@ module.exports = createReducer(new State(),  {
   },
 
   [UPDATE_LAYOUT]: (state, action) => {
-    const { groupIndex, layoutIndex, options } = action
+    const { groupIndex, layoutIndex, layout } = action
 
-    return state.updateIn(['groups', groupIndex, layoutIndex], layout => {
-      if (options) layout = layout.set('options', options);
-
-      return layout;
-    })
+    return state.setIn(['groups', groupIndex, layoutIndex], layout)
   },
 })

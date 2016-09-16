@@ -10,7 +10,8 @@
   "scripts": {
     "prepublish": "rm -rf dist && npm run build",
     "build": "mkdir -p dist && browserify -o dist/bundle.js src/standalone.js",
-    "watch": "mkdir -p dist && watchify -dv -o dist/bundle.js src/standalone.js"
+    "watch": "mkdir -p dist && watchify -dv -o dist/bundle.js src/standalone.js",
+    "test": "tape src/tests/*"
   },
   "keywords": [],
   "author": "",
@@ -33,10 +34,12 @@
     "redux": "^3.5.2",
     "redux-immutablejs": "0.0.8",
     "redux-thunk": "^2.1.0",
-    "reflexbox": "^2.1.0"
+    "reflexbox": "^2.1.0",
+    "reselect": "^2.5.3"
   },
   "devDependencies": {
     "browserify": "^13.0.1",
+    "tape": "^4.6.0",
     "watchify": "^3.7.0"
   }
 }
