@@ -16,8 +16,8 @@ const ApplicationState = Immutable.Record({
 //
 // Dataset -> Options -> Derivations
 //
-// The output of the previous fn will also be passed, so the signature will
-// actually be:
+// The derivations of the previous fn will also be passed, so the signature
+// will actually be:
 //
 // Dataset -> Options -> Maybe Derivations -> Derivations
 const Derivations = Immutable.Record({
@@ -39,7 +39,7 @@ const LayoutGroup = Immutable.Record({
 
 module.exports = {
   ApplicationState,
-  Output,
+  Derivations,
   Layout,
   LayoutGroup,
 }
