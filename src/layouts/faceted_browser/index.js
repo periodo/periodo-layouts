@@ -1,9 +1,18 @@
 "use strict";
 
-exports.label = 'Faceted browser';
+const Immutable = require('immutable')
 
-exports.description = 'Create a browseable faceted classification based on all periods.';
+module.exports = {
+  label: 'Faceted browser',
+  description: 'Create a browseable faceted classification based on all periods.',
+  processor: require('./processor'),
+  renderer: require('./FacetBrowser'),
+  defaultOptions: {
+    minWidth: 300,
+    resultsMaxHeight: 360,
 
-const FacetBrowser = require('./FacetBrowser');
+    fields: Immutable.List(),
+    selectedValues: Immutable.Map()
+  }
+}
 
-exports.handler = FacetBrowser;
