@@ -28,7 +28,7 @@ const datasetByGroupSelector = createSelector(
   (dataset, filtersByGroup) =>
     filtersByGroup
       .reduce((acc, filters) => {
-        let nextDataset = acc.pop()
+        let nextDataset = acc.last()
 
         const keptCollections = filters.get('keptCollections')
             , keptPeriods = filters.get('keptPeriods')
@@ -48,7 +48,7 @@ const datasetByGroupSelector = createSelector(
         }
 
         return acc.push(nextDataset)
-      }, Immutable.List.of([dataset]))
+      }, Immutable.List([dataset]))
       .butLast()
 )
 

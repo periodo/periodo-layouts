@@ -3,6 +3,7 @@
 const Immutable = require('immutable')
 
 const ApplicationState = Immutable.Record({
+  dataset: null,
   editing: true,
   groups: Immutable.List([]),
   renderedGroups: Immutable.List([]),
@@ -21,7 +22,7 @@ const ApplicationState = Immutable.Record({
 //
 // Dataset -> Options -> Maybe Derivations -> Derivations
 const Derivations = Immutable.Record({
-  attributes: null,
+  attributes: Immutable.Map(),
   keptCollections: null,
   keptPeriods: null,
 })
@@ -34,7 +35,6 @@ const Layout = Immutable.Record({
 
 const LayoutGroup = Immutable.Record({
   layouts: Immutable.List(),
-  dataset: null,
 })
 
 module.exports = {

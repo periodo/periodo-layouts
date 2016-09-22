@@ -2,8 +2,8 @@
 
 const qs = require('qs')
     , Immutable = require('immutable')
-    , registeredLayouts = Object.keys(require('./layouts'))
-    , { Layout } = require('./records')
+    , registeredLayouts = require('./layouts')
+    , { Layout, Derivations } = require('./records')
 
 const {
   GENERAL_ERROR,
@@ -20,6 +20,12 @@ const {
   DISABLE_EDITING,
 } = require('./consts')
 
+
+function copy(data) {
+  return JSON.parse(JSON.stringify(data))
+}
+
+
 module.exports = {
   addError,
 
@@ -34,6 +40,7 @@ module.exports = {
   removeLayout,
   updateLayoutOptions,
 }
+
 
 function addError(msg) {
   return {
@@ -62,7 +69,7 @@ function resetLayoutGroups(groupSpec) {
       if (typeof groupSpec === 'string') {
         groupSpec = qs.parse(groupSpec).groups
       } else {
-        groupSpec = JSON.parse(JSON.stringify(groupSpec));
+        groupSpec = copy(groupSpec)
       }
 
       if (!groupSpec) {
@@ -115,22 +122,22 @@ function addLayout(groupIndex, layoutIndex=Infinity, name, options) {
       ))
     }
 
+    options = makeOptions(name, options);
+
     // FIXME: Check if layout exists in registered layouts
 
     const layout = new Layout({
       name,
       options,
-      derivations: derivationsFromOptions(getState().dataset, name, options)
+      derived: derivationsFromOptions(getState().dataset, name, options)
     })
 
-    dispatch({
+    return dispatch({
       type: ADD_LAYOUT,
       groupIndex,
       layoutIndex,
       layout,
     })
-
-    return dispatch(updateLayoutOptions(groupIndex, layoutIndex, options));
   }
 }
 
@@ -148,7 +155,9 @@ function updateLayoutOptions(groupIndex, layoutIndex, options) {
 
     const { groups, dataset } = getState()
 
-    let layout = groups.getIn([groupIndex, layoutIndex])
+    let layout = groups.getIn([groupIndex, 'layouts', layoutIndex])
+
+    options = makeOptions(layout.name, options);
 
     if (!layout) {
       dispatch(addError(`No layout at (${groupIndex},${layoutIndex})`))
@@ -157,7 +166,7 @@ function updateLayoutOptions(groupIndex, layoutIndex, options) {
 
     layout = layout
       .set('options', options)
-      .set('derivations', derivationsFromOptions(
+      .set('derived', derivationsFromOptions(
         dataset,
         layout.name,
         options,
@@ -177,17 +186,22 @@ function updateLayoutOptions(groupIndex, layoutIndex, options) {
   }
 }
 
+function makeOptions(layoutName, options) {
+  return Immutable.fromJS(copy(Immutable.Map().merge(
+    registeredLayouts[layoutName].defaultOptions || {},
+    options
+  )))
+}
+
 
 // TODO: Allow this to be async?
 function derivationsFromOptions(dataset, layoutName, options, prevDerivations) {
-  let nextDerivations
-
-  options = Immutable.fromJS(JSON.parse(JSON.stringify(options)));
+  let nextDerivations = null
 
   const { processor } = registeredLayouts[layoutName]
 
   if (processor) {
-    nextDerivations = processor(dataset, options, prevDerivations)
+    nextDerivations = processor(dataset, options, prevDerivations || new Derivations())
   }
 
   return nextDerivations

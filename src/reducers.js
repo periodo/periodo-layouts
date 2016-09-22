@@ -1,8 +1,7 @@
 "use strict";
 
-const Immutable = require('immutable')
-    , { createReducer } = require('redux-immutablejs')
-    , { ApplicationState } = require('./records')
+const { createReducer } = require('redux-immutablejs')
+    , { ApplicationState, LayoutGroup } = require('./records')
 
 const {
   GENERAL_ERROR,
@@ -35,7 +34,7 @@ module.exports = createReducer(new ApplicationState(),  {
     state.set('editing', false),
 
   [CLEAR_LAYOUT_GROUPS]: state =>
-    state.delete('groups'),
+    state.delete('groups').delete('renderedGroups'),
 
   [ADD_LAYOUT_GROUP]: (state, action) => {
     const { before } = action
@@ -66,19 +65,19 @@ module.exports = createReducer(new ApplicationState(),  {
   [ADD_LAYOUT]: (state, action) => {
     const { groupIndex, layoutIndex, layout } = action
 
-    return state.updateIn(['groups', groupIndex], group =>
-      group.splice(layoutIndex, 0, layout))
+    return state.updateIn(['groups', groupIndex, 'layouts'], layouts =>
+      layouts.splice(layoutIndex, 0, layout))
   },
 
   [REMOVE_LAYOUT]: (state, action) => {
     const { groupIndex, layoutIndex } = action
 
-    return state.deleteIn(['groups', groupIndex, layoutIndex])
+    return state.deleteIn(['groups', groupIndex, 'layouts', layoutIndex])
   },
 
   [UPDATE_LAYOUT]: (state, action) => {
     const { groupIndex, layoutIndex, layout } = action
 
-    return state.setIn(['groups', groupIndex, layoutIndex], layout)
+    return state.setIn(['groups', groupIndex, 'layouts', layoutIndex], layout)
   },
 })
