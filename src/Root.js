@@ -7,6 +7,7 @@ const h = require('react-hyperscript')
     , { createStore, applyMiddleware, compose } = require('redux')
     , rootReducer = require('./reducers')
     , LayoutPanel = require('./components/LayoutPanel')
+    , { ApplicationState } = require('./records')
 
 
 const Root = React.createClass({
@@ -97,7 +98,7 @@ const Root = React.createClass({
 module.exports = ({ initialState, data, prov }) => {
   const store = createStore(
     rootReducer,
-    initialState,
+    (initialState || new ApplicationState()).set('dataset', data),
     compose(
       applyMiddleware(thunk),
       (window || {}).devToolsExtension ? window.devToolsExtension() : a => a
