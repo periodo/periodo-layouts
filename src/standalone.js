@@ -20,9 +20,11 @@ function loadData() {
 }
 
 function getInitialLayouts() {
+  /*
   if (process.browser) {
     return window.location.hash.slice(1);
   }
+  */
 
   // TODO: Improve!
   return process.argv[2]
@@ -37,15 +39,19 @@ function renderToDOM(component) {
   listEl.classList.remove('hide');
   loadingEl.classList.add('hide');
 
+  /*
   store.subscribe(() => {
     const groups = store.getState().groups
       .filter(group => group && group.size)
       .toJS()
 
     if (groups.length) {
-      window.location.hash = qs.stringify({ groups })
+      window.location.hash = qs.stringify({
+        groups
+      })
     }
   });
+  */
 
   ReactDOM.render(component, containerEl);
 }
