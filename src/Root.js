@@ -33,8 +33,8 @@ const Root = React.createClass({
           primaryDarkest: '#112e51',
 
           base: '#212121',
-          grayDark: '#323a45',
-          grayLight: '#aeb0b5',
+          // grayDark: '#323a45',
+          // grayLight: '#aeb0b5',
           white: '#fff',
 
           // "Secondary colors"
