@@ -8,6 +8,7 @@ const h = require('react-hyperscript')
     , { Flex } = require('reflexbox')
     , enabledLayouts = require('../layouts')
     , { updateLayoutOptions, removeLayout } = require('../actions')
+    , { Derivations } = require('../records')
 
 
 function isReactComponent(obj) {
@@ -16,7 +17,7 @@ function isReactComponent(obj) {
 
 function mapStateToProps(state, ownProps) {
   const { groupIndex, layoutIndex } = ownProps
-      , layout = state.groups.getIn([groupIndex, layoutIndex])
+      , layout = state.groups.getIn([groupIndex, 'layouts', layoutIndex])
 
   return Object.assign(layout.toObject(), {
     layout: enabledLayouts[layout.name],
@@ -47,6 +48,7 @@ const Layout = React.createClass({
 
     name: React.PropTypes.oneOf(Object.keys(enabledLayouts)).isRequired,
     options: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    derived: React.PropTypes.instanceOf(Derivations),
     layout: React.PropTypes.object.isRequired,
   },
 
@@ -56,12 +58,12 @@ const Layout = React.createClass({
     // Layout type has changed
     if (nextProps.name !== this.props.name) {
       // Unmount existing non-react layout
-      if (this._nonReactLayoutHandler) {
+      if (this._nonReactLayoutRenderer) {
         this.unmountNonReactComponent();
       }
 
       // If layout is not a react component, mount it
-      if (!isReactComponent(layout.handler)) {
+      if (!isReactComponent(layout.renderer)) {
         this.mountNonReactComponent();
       }
     }
@@ -72,7 +74,7 @@ const Layout = React.createClass({
 
     // Layout type has not changed, but we do need to manually update
     // non-react layouts
-    if (!isReactComponent(layout.handler)) {
+    if (!isReactComponent(layout.renderer)) {
       this.updateNonReactComponent();
     }
   },
@@ -80,26 +82,26 @@ const Layout = React.createClass({
   componentDidMount() {
     const { layout } = this.props
 
-    if (!isReactComponent(layout.handler)) {
+    if (!isReactComponent(layout.renderer)) {
       this.mountNonReactComponent();
       this.updateNonReactComponent();
     }
   },
 
   updateNonReactComponent() {
-    const handler = this._nonReactLayoutHandler
+    const renderer = this._nonReactLayoutRenderer
 
-    if (handler.update) {
-      handler.update.call(handler, this.getChildProps());
+    if (renderer.update) {
+      renderer.update.call(renderer, this.getChildProps());
     }
   },
 
   mountNonReactComponent() {
     const { layout } = this.props
         , { container } = this.refs
-        , handler = this._nonReactLayoutHandler = Object.create(layout.handler)
+        , renderer = this._nonReactLayoutRenderer = Object.create(layout.renderer)
 
-    handler.init.call(handler, container, this.getChildProps());
+    renderer.init.call(renderer, container, this.getChildProps());
   },
 
   unmountNonReactComponent() {
@@ -109,18 +111,18 @@ const Layout = React.createClass({
       container.removeChild(el);
     })
 
-    delete this._nonReactLayoutHandler;
+    delete this._nonReactLayoutRenderer;
   },
 
   getChildProps() {
-    const { data, options, updateOptions, editing } = this.props
+    const { data, options, updateOptions, editing, derived } = this.props
 
-    return {
+    return Object.assign({}, derived && derived.attributes && derived.attributes.toObject(), {
       data,
       options,
       updateOptions,
       editing,
-    }
+    })
   },
 
   render() {
@@ -153,8 +155,8 @@ const Layout = React.createClass({
           ])
         ]),
 
-        isReactComponent(layout.handler)
-          ? h(layout.handler, this.getChildProps())
+        isReactComponent(layout.renderer)
+          ? h(layout.renderer, this.getChildProps())
           : h('div', { ref: 'container' })
       ])
     )

@@ -3,7 +3,6 @@
 const h = require('react-hyperscript')
     , { Block, LinkBlock, Heading, Text } = require('rebass')
     , enabledLayouts = require('../layouts')
-    , { Layout } = require('../records')
 
 module.exports = function LayoutPicker({ onSelectLayout }) {
   return (
@@ -22,7 +21,7 @@ module.exports = function LayoutPicker({ onSelectLayout }) {
             href: '',
             onClick: e => {
               e.preventDefault();
-              onSelectLayout(new Layout({ name }));
+              onSelectLayout(name);
             }
           }, h(Heading, { level: 3 }, enabledLayouts[name].label)),
 

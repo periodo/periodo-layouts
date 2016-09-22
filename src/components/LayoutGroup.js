@@ -4,30 +4,24 @@ const h = require('react-hyperscript')
     , { bindActionCreators } = require('redux')
     , { connect } = require('react-redux')
     , { Block, Close } = require('rebass')
-    , enabledLayouts = require('../layouts')
-    , applyGroupFilters = require('../apply_group_filters')
     , LayoutPicker = require('./LayoutPicker')
     , Layout = require('./Layout')
 
 function mapStateToProps(state, ownProps) {
-  const { groupIndex, data } = ownProps
+  const { groupIndex } = ownProps
 
   return {
     editing: state.editing,
-    layouts: state.groups.get(groupIndex),
-    data: applyGroupFilters(
-      enabledLayouts,
-      data,
-      state.groups.slice(0, groupIndex).filter(x => x))
+    layouts: state.groups.getIn([groupIndex, 'layouts']),
   }
 }
 
 function LayoutGroup({
+  data,
   groupIndex,
 
   editing,
   layouts,
-  data,
 
   addLayout,
   removeLayoutGroup,
@@ -38,7 +32,7 @@ function LayoutGroup({
         border: '1px solid #ccc',
       }
     }, [
-    /*
+      /*
       editing && h(Close, {
         onClick: () => removeLayoutGroup(groupIndex)
       }),
@@ -50,14 +44,14 @@ function LayoutGroup({
         })
       ),
 
-      layouts.toArray().map((layout, layoutIndex) =>
+      h('div', layouts.toArray().map((layout, layoutIndex) =>
         h(Layout, {
           key: layoutIndex,
           data,
           groupIndex,
           layoutIndex,
         })
-      ),
+      )),
     ])
   )
 }
