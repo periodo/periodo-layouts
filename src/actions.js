@@ -157,6 +157,10 @@ function updateLayoutOptions(groupIndex, layoutIndex, options) {
 
     let layout = groups.getIn([groupIndex, 'layouts', layoutIndex])
 
+    if (typeof options === 'function') {
+      options = options(layout.options);
+    }
+
     options = makeOptions(layout.name, options);
 
     if (!layout) {
