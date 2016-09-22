@@ -35,4 +35,4 @@ const CollectionList = React.createClass({
   }
 })
 
-exports.handler = CollectionList;
+exports.renderer = CollectionList;

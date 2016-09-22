@@ -6,7 +6,7 @@ exports.label = 'Update counter';
 
 exports.description = 'Count the number of times layout has been updated (for debugging purposes)';
 
-exports.handler = {
+exports.renderer = {
   init(el) {
     this.el = el;
     this.counter = 0;
@@ -22,7 +22,6 @@ exports.handler = {
       }, [])
 
     this.lastProps = nextProps;
-
 
     this.el.innerHTML = `
       <p>No. updates: ${this.counter}</p>

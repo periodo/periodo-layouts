@@ -9,7 +9,7 @@ exports.label = 'Period list';
 
 exports.description = 'Simple list of periods';
 
-const reactHandler = React.createClass({
+const reactRenderer = React.createClass({
   render() {
     const { data, prov, setOptions } = this.props
 
@@ -25,7 +25,7 @@ const reactHandler = React.createClass({
   }
 })
 
-const domHandler = {
+const domRenderer = {
   init(el, { data, prov, setOptions }) {
     this.el = el;
   },
@@ -46,4 +46,4 @@ const domHandler = {
   }
 }
 
-exports.handler = domHandler;
+exports.renderer = domRenderer;

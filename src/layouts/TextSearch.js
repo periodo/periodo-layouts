@@ -9,15 +9,15 @@ exports.label = 'Text search';
 
 exports.description = 'Search for periods by text.';
 
-exports.filterer = (dataset, options) => {
-  let matchedPeriods = null;
+exports.processor = (dataset, options) => {
+  let keptPeriods = null;
 
   const text = options.get('text')
 
   if (text) {
     const regex = text && new RegExp(text, 'i')
 
-    matchedPeriods = dataset.get('periodCollections')
+    keptPeriods = dataset.get('periodCollections')
       .flatMap(collection => collection.get('definitions'))
       .filter(period => (
         regex.test(period.get('label', '')) ||
@@ -26,11 +26,11 @@ exports.filterer = (dataset, options) => {
       .map(period => period.get('id'))
       .toList()
 
-    return { periods: matchedPeriods }
+    return Immutable.Map({ keptPeriods })
   }
 }
 
-exports.handler = React.createClass({
+exports.renderer = React.createClass({
   displayName: 'TextSearch',
 
   propTypes: {

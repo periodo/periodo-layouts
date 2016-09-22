@@ -3,7 +3,7 @@
 exports.label = 'Statistics';
 exports.description = 'Simple stastics about the dataset.';
 
-const statisticsHandler = {
+exports.renderer = {
   init(container, props) {
     this._container = container;
     this.update(props);
@@ -21,5 +21,3 @@ const statisticsHandler = {
     `
   }
 }
-
-exports.handler = statisticsHandler;
