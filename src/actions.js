@@ -81,20 +81,20 @@ function resetLayoutGroups(groupSpec) {
       }
 
       groupSpec.forEach(group => {
-        if (!Array.isArray(group)) {
+        if (!Array.isArray(group.layouts)) {
           throw new Error('Layout groups should be an array of arrays');
         }
 
         dispatch(addLayoutGroup());
 
-        const groupIndex = getState().keySeq().last()
+        const groupIndex = getState().groups.keySeq().last()
 
-        group.forEach(({ name, options }) => {
-          dispatch(addLayout(groupIndex, name, options));
+        group.layouts.forEach(({ name, options }) => {
+          dispatch(addLayout(groupIndex, undefined, name, options));
         })
       })
     } catch (e) {
-      return addError(e);
+      return dispatch(addError(e));
     }
   }
 }

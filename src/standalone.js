@@ -20,11 +20,17 @@ function loadData() {
 }
 
 function getInitialLayouts() {
-  /*
   if (process.browser) {
-    return window.location.hash.slice(1);
+    let groups
+
+    try {
+      groups = JSON.parse(localStorage.groups)
+    } catch (e) {
+      groups = null;
+    }
+
+    return groups;
   }
-  */
 
   // TODO: Improve!
   return process.argv[2]
@@ -39,19 +45,17 @@ function renderToDOM(component) {
   listEl.classList.remove('hide');
   loadingEl.classList.add('hide');
 
-  /*
   store.subscribe(() => {
     const groups = store.getState().groups
       .filter(group => group && group.size)
-      .toJS()
+      .map(group => group.update('layouts', layouts =>
+        layouts.map(layout =>
+          layout.toMap().filter((_, key) => key === 'name' || key === 'options'))
+        )
+      )
 
-    if (groups.length) {
-      window.location.hash = qs.stringify({
-        groups
-      })
-    }
+    localStorage.groups = JSON.stringify(groups)
   });
-  */
 
   ReactDOM.render(component, containerEl);
 }
@@ -67,11 +71,9 @@ function init() {
         , render = process.browser ? renderToDOM : renderToStdout
         , { store } = component.props
 
-    Promise.resolve(store.dispatch(
-      resetLayoutGroups(getInitialLayouts())
-    )).then(() => {
-      render(component)
-    })
+    store.dispatch(resetLayoutGroups(getInitialLayouts()))
+
+    render(component)
 
   })
 }
