@@ -73,7 +73,7 @@ const LayoutPanel = React.createClass({
             backgroundColor: 'secondary',
             onClick: e => {
               e.preventDefault();
-              resetLayoutGroups('');
+              resetLayoutGroups([]);
             }
           }, 'Reset')
         ]),
