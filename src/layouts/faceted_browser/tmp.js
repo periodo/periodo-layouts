@@ -26,25 +26,6 @@
     });
   },
 
-  getFacetValues(fieldName) {
-    const { brushedRange, searchText, selectedValues } = this.state
-
-    let { facetedQuery } = this.state
-
-    // First, get the matched documents for all other fields
-    const intersectingIDs = selectedValues
-      .delete(fieldName)
-      .reduce((fq, values, name) => fq.select({ name, values }), facetedQuery)
-      .selectedItems()
-      .map(item => item.get('id'))
-
-    // Now, get values matching all other constraints
-    return facetedQuery
-      .select({ name: 'id', values: intersectingIDs })
-      .selectedFacetsByIndex([fieldName])
-      .get(fieldName)
-  },
-
   getMatchedPeriods(onlyInRange) {
     let { facetedQuery } = this.state
 

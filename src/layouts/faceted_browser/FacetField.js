@@ -4,7 +4,7 @@ const h = require('react-hyperscript')
     , React = require('react')
     , Immutable = require('immutable')
     , { isIterable } = Immutable.Iterable
-    , { Block, Button, Heading, LinkBlock } = require('rebass')
+    , { Block, Heading, LinkBlock } = require('rebass')
     , { Flex } = require('reflexbox')
 
 function preventDefault(fn) {
@@ -46,7 +46,14 @@ module.exports = React.createClass({
   },
 
   render() {
-    const { minWidth, resultsMaxHeight, label, expanded } = this.props
+    const {
+      minWidth,
+      resultsMaxHeight,
+      label,
+      expanded,
+      format,
+      unselectedValues
+    } = this.props
 
     return (
       h(Block, {
@@ -79,12 +86,12 @@ module.exports = React.createClass({
             }
           }, [
             h('table', [
-              h('tbody', unselectedFacetValues.map((ids, value) =>
-                h(FacetValue, {
+              h('tbody', unselectedValues.map((ids, value) =>
+                h(Value, {
                   value,
                   format,
                   count: ids.size,
-                  handleClick: onSelectFacet.bind(null, value),
+                  /*handleClick: onSelectFacet.bind(null, value),*/
                 })).toArray()
               )
             ])
