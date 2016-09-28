@@ -5,4 +5,5 @@ module.exports = {
   'text-search': require('./TextSearch'),
   'period-list': require('./PeriodList'),
   'update-counter': require('./update_counter'),
+  'range-selection': require('./range_selection'),
 }
