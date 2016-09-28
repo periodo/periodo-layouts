@@ -3,7 +3,7 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , Immutable = require('immutable')
-    , { getAlternateLabels } = require('periodo-utils/items/period')
+    , { getAlternateLabels } = require('periodo-utils/lib/items/period')
 
 exports.label = 'Text search';
 

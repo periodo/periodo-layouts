@@ -1,7 +1,7 @@
 "use strict";
 
 const Immutable = require('immutable')
-    , { getDisplayTitle } = require('periodo-utils/items/source')
+    , { getDisplayTitle } = require('periodo-utils/lib/items/source')
 
 const iso639_3 = require('iso-639-3').reduce((obj, lang) => {
   const key = lang.iso6393
