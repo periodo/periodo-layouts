@@ -34,8 +34,7 @@
     "redux": "^3.5.2",
     "redux-immutablejs": "0.0.8",
     "redux-thunk": "^2.1.0",
-    "reflexbox": "^2.1.0",
-    "reselect": "^2.5.3"
+    "reflexbox": "^2.1.0"
   },
   "devDependencies": {
     "browserify": "^13.0.1",

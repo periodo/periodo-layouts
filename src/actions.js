@@ -3,7 +3,7 @@
 const qs = require('qs')
     , Immutable = require('immutable')
     , registeredLayouts = require('./layouts')
-    , { Layout, Derivations } = require('./records')
+    , { Layout } = require('./records')
 
 const {
   GENERAL_ERROR,
@@ -113,7 +113,7 @@ function removeLayoutGroup(groupIndex) {
   }
 }
 
-function addLayout(groupIndex, layoutIndex=Infinity, name, options) {
+function addLayout(groupIndex, layoutIndex=Infinity, name, initialOptions) {
   return (dispatch, getState) => {
     if (!getState().groups.has(groupIndex)) {
       return dispatch(addError(
@@ -122,14 +122,13 @@ function addLayout(groupIndex, layoutIndex=Infinity, name, options) {
       ))
     }
 
-    options = makeOptions(name, options);
+    const options = makeOptions(name, initialOptions);
 
     // FIXME: Check if layout exists in registered layouts
 
     const layout = new Layout({
       name,
       options,
-      derived: derivationsFromOptions(getState().dataset, name, options)
     })
 
     return dispatch({
@@ -153,7 +152,7 @@ function updateLayoutOptions(groupIndex, layoutIndex, options) {
   return (dispatch, getState) => {
     if (!options) return;
 
-    const { groups, dataset } = getState()
+    const { groups } = getState()
 
     let layout = groups.getIn([groupIndex, 'layouts', layoutIndex])
 
@@ -168,14 +167,7 @@ function updateLayoutOptions(groupIndex, layoutIndex, options) {
       return;
     }
 
-    layout = layout
-      .set('options', options)
-      .set('derived', derivationsFromOptions(
-        dataset,
-        layout.name,
-        options,
-        layout.derivations
-      ))
+    layout = layout.set('options', options)
 
     try {
       dispatch({
@@ -195,18 +187,4 @@ function makeOptions(layoutName, options) {
     registeredLayouts[layoutName].defaultOptions || {},
     options
   )))
-}
-
-
-// TODO: Allow this to be async?
-function derivationsFromOptions(dataset, layoutName, options, prevDerivations) {
-  let nextDerivations = null
-
-  const { processor } = registeredLayouts[layoutName]
-
-  if (processor) {
-    nextDerivations = processor(dataset, options, prevDerivations || new Derivations())
-  }
-
-  return nextDerivations
 }
