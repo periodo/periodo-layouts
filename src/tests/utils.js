@@ -15,10 +15,8 @@ const layoutHandlers = {
   },
 
   datasetFilterer: {
-    getFilters() {
-      return {
-        keptPeriods: ['p1']
-      }
+    makePeriodFilter() {
+      return (period, periodKey) => periodKey === 'p1'
     }
   }
 }
@@ -187,6 +185,7 @@ test('Group processor', t => {
           ]
         }
     ])
-    ), 'should filter data between layout groups')
+      )
+    , 'should filter data between layout groups')
 
 })

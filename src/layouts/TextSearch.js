@@ -2,46 +2,32 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
-    , Immutable = require('immutable')
     , { getAlternateLabels } = require('periodo-utils/lib/items/period')
 
 exports.label = 'Text search';
 
 exports.description = 'Search for periods by text.';
 
-exports.processor = (dataset, options) => {
-  let keptPeriods = null;
+exports.makePeriodFilter = function (opts) {
+  const text = opts.get('text')
+      , regex = text && new RegExp(text, 'i')
 
-  const text = options.get('text')
+  return period => {
+    if (!text) return true;
 
-  if (text) {
-    const regex = text && new RegExp(text, 'i')
-
-    keptPeriods = dataset.get('periodCollections')
-      .flatMap(collection => collection.get('definitions'))
-      .filter(period => (
-        regex.test(period.get('label', '')) ||
-        getAlternateLabels(period).some(label => regex.test(label))
-      ))
-      .map(period => period.get('id'))
-      .toList()
-
-    return Immutable.Map({ keptPeriods })
+    return (
+      regex.test(period.get('label', '')) ||
+      getAlternateLabels(period).some(label => regex.test(label))
+    )
   }
 }
 
 exports.renderer = React.createClass({
   displayName: 'TextSearch',
 
-  propTypes: {
-    data: React.PropTypes.instanceOf(Immutable.Map).isRequired,
-    options: React.PropTypes.instanceOf(Immutable.Map).isRequired,
-    updateOptions: React.PropTypes.func.isRequired,
-  },
-
   render() {
     const { options, updateOptions } = this.props
-        , text = options.get('text') || ''
+        , text = options.get('text', '')
 
     return (
       h('label', [
@@ -49,7 +35,9 @@ exports.renderer = React.createClass({
         h('input', {
           type: 'text',
           value: text,
-          onChange: e => { updateOptions({ text: e.target.value }) }
+          onChange: e => {
+            updateOptions({ text: e.target.value })
+          }
         })
       ])
     )

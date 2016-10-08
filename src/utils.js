@@ -9,31 +9,6 @@ function isReactComponent(obj) {
   return 'isReactComponent' in (obj.prototype || {})
 }
 
-function keepItemsInSet(toKeep) {
-  return set => set.filter((_, id) => toKeep.has(id))
-}
-
-function filterDataset(dataset, filters) {
-  const keptAuthorities = filters.get('keptAuthorities')
-      , keptPeriods = filters.get('keptPeriods')
-
-  if (keptAuthorities) {
-    dataset = dataset
-      .update('authorities', keepItemsInSet(keptAuthorities))
-  }
-
-  if (keptPeriods) {
-    dataset = dataset
-      .update('authorities', authorities =>
-        authorities
-          .map(x => x.update('definitions', keepItemsInSet(keptPeriods)))
-          .filter(c => c.get('definitions').size > 0)
-      )
-  }
-
-  return dataset;
-}
-
 function processGroups(
   enabledLayouts,
   baseDataset,
@@ -51,19 +26,25 @@ function processGroups(
     if (i === 0) {
       dataset = baseDataset;
     } else {
-      const filters = acc.last().get('layouts').reduce((acc, layout) => {
-        const name = layout.get('name')
-            , { getFilters } = enabledLayouts[name]
+      dataset = acc.last().get('dataset')
 
-        return !getFilters
-          ? acc
-          : acc.mergeWith(
-            (prev, next) => Immutable.Set(prev || next).union(next),
-            getFilters(dataset, layout.get('derivedOpts'))
-        )
-      }, Immutable.Map({ keptPeriods: null, keptAuthorities: null }))
+      const filters = acc.last()
+        .get('layouts')
+        .map(layout => enabledLayouts[layout.get('name')].makePeriodFilter)
+        .filter(x => x)
+        .map(f => f(acc.last().get('derivedOpts')))
 
-      dataset = filterDataset(acc.last().get('dataset'), filters)
+      if (filters.size) {
+        dataset = dataset
+          .update('authorities', authorities =>
+            authorities
+              .map((authority, authorityKey) =>
+                authority.update('definitions', definitions =>
+                  definitions
+                    .filter((period, periodKey) =>
+                      filters.every(f => f(period, periodKey, authority, authorityKey)))))
+              .filter(authority => authority.get('definitions').size))
+      }
     }
 
     const layouts = group.get('layouts').map((layout, j) => {
@@ -78,11 +59,14 @@ function processGroups(
       const { deriveOpts=noop } = enabledLayouts[name]
 
       const nextDerivedOpts = (
-        (prev && opts === prev.get('opts'))
+        (prev && opts === prev.get('opts') && name === prev.get('name'))
           ? prev.get('derivedOpts')
           : deriveOpts === noop
             ? opts
-            : deriveOpts((prev || Immutable.Map()).get('derivedOpts'), opts, dataset))
+            : deriveOpts(
+                (prev || Immutable.Map()).get('derivedOpts'),
+                opts,
+                dataset))
 
       return Immutable.Map({
         name,
@@ -97,6 +81,5 @@ function processGroups(
 
 module.exports = {
   isReactComponent,
-  filterDataset,
   processGroups,
 }
