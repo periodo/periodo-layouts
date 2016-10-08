@@ -7,8 +7,7 @@ const h = require('react-hyperscript')
     , { Close, Block, Heading } = require('rebass')
     , { Flex } = require('reflexbox')
     , enabledLayouts = require('../layouts')
-    , { updateLayoutOptions, removeLayout } = require('../actions')
-    , { Derivations } = require('../records')
+    , { updateLayoutOpts, removeLayout } = require('../actions')
 
 
 function isReactComponent(obj) {
@@ -20,7 +19,7 @@ function mapStateToProps(state, ownProps) {
       , layout = state.groups.getIn([groupIndex, 'layouts', layoutIndex])
 
   return Object.assign(layout.toObject(), {
-    layout: enabledLayouts[layout.name],
+    layoutHandler: enabledLayouts[layout.name],
     editing: state.editing
   })
 }
@@ -29,8 +28,8 @@ function mapDispatchToProps(dispatch, ownProps) {
   const { groupIndex, layoutIndex } = ownProps
 
   return {
-    updateOptions: options =>
-      dispatch(updateLayoutOptions(groupIndex, layoutIndex, options)),
+    updateOpts: opts =>
+      dispatch(updateLayoutOpts(groupIndex, layoutIndex, opts)),
 
     removeLayout: () =>
       dispatch(removeLayout(groupIndex, layoutIndex))
@@ -43,17 +42,17 @@ const Layout = React.createClass({
   propTypes: {
     editing: React.PropTypes.bool,
 
-    data: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    dataset: React.PropTypes.instanceOf(Immutable.Map).isRequired,
     //prov: React.PropTypes.object.isRequired,
 
     name: React.PropTypes.oneOf(Object.keys(enabledLayouts)).isRequired,
-    options: React.PropTypes.instanceOf(Immutable.Map).isRequired,
-    derived: React.PropTypes.instanceOf(Derivations),
-    layout: React.PropTypes.object.isRequired,
+    opts: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    derivedOpts: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    layoutHandler: React.PropTypes.object.isRequired,
   },
 
   componentWillUpdate(nextProps) {
-    const { layout } = this.props
+    const { layoutHandler } = this.props
 
     // Layout type has changed
     if (nextProps.name !== this.props.name) {
@@ -63,26 +62,26 @@ const Layout = React.createClass({
       }
 
       // If layout is not a react component, mount it
-      if (!isReactComponent(layout.renderer)) {
+      if (!isReactComponent(layoutHandler.renderer)) {
         this.mountNonReactComponent();
       }
     }
   },
 
   componentDidUpdate() {
-    const { layout } = this.props
+    const { layoutHandler } = this.props
 
     // Layout type has not changed, but we do need to manually update
     // non-react layouts
-    if (!isReactComponent(layout.renderer)) {
+    if (!isReactComponent(layoutHandler.renderer)) {
       this.updateNonReactComponent();
     }
   },
 
   componentDidMount() {
-    const { layout } = this.props
+    const { layoutHandler } = this.props
 
-    if (!isReactComponent(layout.renderer)) {
+    if (!isReactComponent(layoutHandler.renderer)) {
       this.mountNonReactComponent();
       this.updateNonReactComponent();
     }
@@ -97,9 +96,9 @@ const Layout = React.createClass({
   },
 
   mountNonReactComponent() {
-    const { layout } = this.props
+    const { layoutHandler } = this.props
         , { container } = this.refs
-        , renderer = this._nonReactLayoutRenderer = Object.create(layout.renderer)
+        , renderer = this._nonReactLayoutRenderer = Object.create(layoutHandler.renderer)
 
     renderer.init.call(renderer, container, this.getChildProps());
   },
@@ -115,18 +114,17 @@ const Layout = React.createClass({
   },
 
   getChildProps() {
-    const { data, options, updateOptions, editing, derived } = this.props
+    const { dataset, opts, updateOpts, editing, derivedOpts } = this.props
 
-    return Object.assign({}, derived && derived.attributes && derived.attributes.toObject(), {
-      data,
-      options,
-      updateOptions,
+    return Object.assign({}, opts && opts.toObject(), derivedOpts.toObject(), {
+      data: dataset,
+      updateOpts,
       editing,
     })
   },
 
   render() {
-    const { layout, name, editing, removeLayout } = this.props
+    const { layoutHandler, name, editing, removeLayout } = this.props
 
     return (
       h(`div .Layout .Layout-${name}`, {
@@ -145,9 +143,9 @@ const Layout = React.createClass({
           }, [
             h(Heading, {
               level: 3,
-              title: layout.description,
+              title: layoutHandler.description,
               my: 1
-            }, layout.label),
+            }, layoutHandler.label),
 
             h(Close, {
               onClick: removeLayout
@@ -155,8 +153,8 @@ const Layout = React.createClass({
           ])
         ]),
 
-        isReactComponent(layout.renderer)
-          ? h(layout.renderer, this.getChildProps())
+        isReactComponent(layoutHandler.renderer)
+          ? h(layoutHandler.renderer, this.getChildProps())
           : h('div', { ref: 'container' })
       ])
     )

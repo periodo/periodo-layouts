@@ -38,7 +38,7 @@ module.exports = {
 
   addLayout,
   removeLayout,
-  updateLayoutOptions,
+  updateLayoutOpts,
 }
 
 
@@ -89,8 +89,8 @@ function resetLayoutGroups(groupSpec) {
 
         const groupIndex = getState().groups.keySeq().last()
 
-        group.layouts.forEach(({ name, options }) => {
-          dispatch(addLayout(groupIndex, undefined, name, options));
+        group.layouts.forEach(({ name, opts }) => {
+          dispatch(addLayout(groupIndex, undefined, name, opts));
         })
       })
     } catch (e) {
@@ -113,7 +113,7 @@ function removeLayoutGroup(groupIndex) {
   }
 }
 
-function addLayout(groupIndex, layoutIndex=Infinity, name, initialOptions) {
+function addLayout(groupIndex, layoutIndex=Infinity, name, initialOpts) {
   return (dispatch, getState) => {
     if (!getState().groups.has(groupIndex)) {
       return dispatch(addError(
@@ -122,14 +122,11 @@ function addLayout(groupIndex, layoutIndex=Infinity, name, initialOptions) {
       ))
     }
 
-    const options = makeOptions(name, initialOptions);
+    const opts = makeOpts(name, initialOpts);
 
     // FIXME: Check if layout exists in registered layouts
 
-    const layout = new Layout({
-      name,
-      options,
-    })
+    const layout = new Layout({ name, opts, })
 
     return dispatch({
       type: ADD_LAYOUT,
@@ -148,26 +145,26 @@ function removeLayout(groupIndex, layoutIndex) {
   }
 }
 
-function updateLayoutOptions(groupIndex, layoutIndex, options) {
+function updateLayoutOpts(groupIndex, layoutIndex, opts) {
   return (dispatch, getState) => {
-    if (!options) return;
+    if (!opts) return;
 
     const { groups } = getState()
 
     let layout = groups.getIn([groupIndex, 'layouts', layoutIndex])
 
-    if (typeof options === 'function') {
-      options = options(layout.options);
+    if (typeof opts === 'function') {
+      opts = opts(layout.opts);
     }
 
-    options = makeOptions(layout.name, options);
+    opts = makeOpts(layout.name, opts);
 
     if (!layout) {
       dispatch(addError(`No layout at (${groupIndex},${layoutIndex})`))
       return;
     }
 
-    layout = layout.set('options', options)
+    layout = layout.set('opts', opts)
 
     try {
       dispatch({
@@ -182,9 +179,9 @@ function updateLayoutOptions(groupIndex, layoutIndex, options) {
   }
 }
 
-function makeOptions(layoutName, options) {
+function makeOpts(layoutName, opts) {
   return Immutable.fromJS(copy(Immutable.Map().merge(
-    registeredLayouts[layoutName].defaultOptions || {},
-    options
+    registeredLayouts[layoutName].defaultOpts || {},
+    opts
   )))
 }

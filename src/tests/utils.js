@@ -22,7 +22,7 @@ const layoutHandlers = {
 }
 
 const dataset = $({
-  authorities: {
+  periodCollections: {
     a1: {
       definitions: {
         p1: {},
@@ -172,7 +172,7 @@ test('Group processor', t => {
 
         {
           dataset: {
-            authorities: {
+            periodCollections: {
               a1: {
                 definitions: {
                   p1: {}

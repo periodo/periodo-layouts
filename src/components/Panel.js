@@ -6,7 +6,9 @@ const h = require('react-hyperscript')
     , { bindActionCreators } = require('redux')
     , { connect } = require('react-redux')
     , { Button, Space } = require('rebass')
+    , enabledLayouts = require('../layouts')
     , LayoutGroup = require('./Group')
+    , { processGroups } = require('../utils')
 
 const baseStyles = {
   fontFamily: 'sans-serif',
@@ -24,7 +26,7 @@ function mapStateToProps(state) {
 function layoutRenderer(props, propName) {
   const val = props[propName]
 
-  if ('isReactComponent' in val) return;
+  if ('isReactComponent' in (val.prototype || {})) return;
 
   const isValid = (
     typeof val === 'object' &&
@@ -34,7 +36,7 @@ function layoutRenderer(props, propName) {
 
   if (isValid) return;
 
-  let msg = `Layout ${props.name} `;
+  let msg = `Layout ${JSON.stringify(props.label)} `;
 
   if (val === undefined) {
     msg += 'has not defined a `render` property.';
@@ -54,10 +56,12 @@ function layoutRenderer(props, propName) {
 
 
 const LayoutPanel = React.createClass({
+  displayName: 'LayoutPanel',
+
   propTypes: {
     enabledLayouts: React.PropTypes.objectOf(
       React.PropTypes.shape({
-        name: React.PropTypes.string.isRequired,
+        label: React.PropTypes.string.isRequired,
         description: React.PropTypes.string.isRequired,
         deriveOpts: React.PropTypes.func,
         getFilters: React.PropTypes.func,
@@ -112,13 +116,13 @@ const LayoutPanel = React.createClass({
 
     // The loop made it through all the groups without finding one that
     // needed cooking.
-    if (processFrom + 1 === groups.size) return;
+    if (groups.size > 0 && processFrom === groups.size) return;
 
     const nextProcessedGroups = processGroups(
       enabledLayouts,
       dataset,
       groups,
-      processGroups,
+      processedGroups,
       processFrom
     )
 
@@ -137,7 +141,7 @@ const LayoutPanel = React.createClass({
       resetLayoutGroups,
     } = this.props
 
-    const { processGroups } = this.state
+    const { processedGroups } = this.state
 
     return (
       h('main .LayoutPanel', { style: baseStyles }, [
@@ -182,12 +186,15 @@ const LayoutPanel = React.createClass({
         )),
 
         h('div', processedGroups.toArray().map((group, i) =>
-          h(LayoutGroup, Object.assign({ key: i }, group.toObject()))
+          h(LayoutGroup,Object.assign({}, {
+            key: i,
+            groupIndex: i,
+          }, group.toObject()))
         )),
 
         editing && h('div', [
           h(Button, {
-            onClick: () => { addLayoutGroup() },
+            onClick: () => addLayoutGroup(),
           }, 'Add')
         ])
       ])

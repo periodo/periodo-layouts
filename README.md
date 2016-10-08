@@ -69,18 +69,15 @@ One of the following:
 
 2. An object with "init" and "update" properties that are functions.
 
-#### .getFilters(dataset, props)
-A function that is passed a dataset and the object returned by mapOptsToProps
-that must return an object with the following keys:
+#### .makePeriodFilter(props)
+A function that is passed the layout's derived options and should return a
+function that will be used to filter periods. It is called with the arguments:
+`period, periodKey, authority, authorityKey`. The function should return
+`false` if the period should be filtered out, else `true`.
 
-  * `keptPeriods`: The periods that have been kept after filtering the dataset
+#### .deriveOpts(prevDerivedOpts, serializableOpts, dataset)
+**(FIXME)**
 
-  * `keptAuthorities`: The periods that have been kept after filtering the dataset
-
-If these values are `undefined`, it means that nothing should be removed. If
-they are an empty list, it means that everything should.
-
-#### .mapOptsToProps(opts, dataset, prevProps)
 A function that is passed a Map of options and a dataset and must return a Map
 which will be given to the `.renderer` function or React component and rendered
 into HTML.  By default, the options will be returned without any changes.

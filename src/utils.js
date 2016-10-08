@@ -30,20 +30,26 @@ function processGroups(
 
       const filters = acc.last()
         .get('layouts')
-        .map(layout => enabledLayouts[layout.get('name')].makePeriodFilter)
-        .filter(x => x)
-        .map(f => f(acc.last().get('derivedOpts')))
+        .reduce((acc2, layout, j) => {
+          const { makePeriodFilter } = enabledLayouts[layout.get('name')]
+
+          return !makePeriodFilter
+            ? acc2
+            : acc2.push(
+                makePeriodFilter(
+                  acc.last().getIn(['layouts', j, 'derivedOpts'])))
+        }, Immutable.List())
 
       if (filters.size) {
         dataset = dataset
-          .update('authorities', authorities =>
-            authorities
-              .map((authority, authorityKey) =>
-                authority.update('definitions', definitions =>
+          .update('periodCollections', periodCollections =>
+            periodCollections
+              .map((collection, collectionKey) =>
+                collection.update('definitions', definitions =>
                   definitions
                     .filter((period, periodKey) =>
-                      filters.every(f => f(period, periodKey, authority, authorityKey)))))
-              .filter(authority => authority.get('definitions').size))
+                      filters.every(f => f(period, periodKey, collection, collectionKey)))))
+              .filter(collection => collection.get('definitions').size))
       }
     }
 

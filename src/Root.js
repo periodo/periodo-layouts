@@ -89,7 +89,7 @@ const Root = React.createClass({
 
     return (
       h(Provider, { store }, [
-        h(LayoutPanel, { data, prov, enabledLayouts: require('./layouts') })
+        h(LayoutPanel, { dataset: data, prov, enabledLayouts: require('./layouts') })
       ])
     )
   }

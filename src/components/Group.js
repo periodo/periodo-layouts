@@ -23,6 +23,7 @@ function LayoutGroup({
   addLayout,
   removeLayoutGroup,
 }) {
+
   return (
     h(Block, {
       style: !editing ? undefined : {
@@ -42,12 +43,12 @@ function LayoutGroup({
       ),
 
       h('div', layouts.toArray().map((layout, layoutIndex) =>
-        h(Layout, {
-          key: layoutIndex,
+        h(Layout, Object.assign({}, layout.toObject(), {
+          key: `${layoutIndex}-${layout.name}`,
           dataset,
           groupIndex,
           layoutIndex,
-        })
+        }))
       )),
     ])
   )

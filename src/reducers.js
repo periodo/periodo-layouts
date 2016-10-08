@@ -34,31 +34,19 @@ module.exports = createReducer(new ApplicationState(),  {
     state.set('editing', false),
 
   [CLEAR_LAYOUT_GROUPS]: state =>
-    state.delete('groups').delete('renderedGroups'),
+    state.delete('groups'),
 
   [ADD_LAYOUT_GROUP]: (state, action) => {
-    const { before } = action
-        , insertionIndex = state.renderedGroups.indexOf(before)
+    const { before=Infinity } = action
 
-    return state
-      .update('groups', groups => groups.push(new LayoutGroup()))
-      .update(state =>
-        state.update('renderedGroups', renderedGroups =>
-          renderedGroups.splice(
-            insertionIndex === -1 ? Infinity : insertionIndex,
-            0,
-            state.groups.keySeq().last()
-          )
-        )
-      )
+    return state.update('groups', groups =>
+      groups.splice(before, 0, new LayoutGroup()))
   },
 
   [REMOVE_LAYOUT_GROUP]: (state, action) => {
     const { groupIndex } = action
 
-    return state
-      .update('groups', groups => groups.set(groupIndex, null))
-      .update('renderedGroups', groups => groups.filter(i => i !== groupIndex))
+    return state.deleteIn(['groups', groupIndex])
   },
 
 

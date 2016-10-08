@@ -26,7 +26,7 @@ function getInitialLayouts() {
     try {
       groups = JSON.parse(localStorage.groups)
     } catch (e) {
-      groups = null;
+      groups = [];
     }
 
     return groups;
@@ -46,13 +46,7 @@ function renderToDOM(component) {
   loadingEl.classList.add('hide');
 
   store.subscribe(() => {
-    const groups = store.getState().groups
-      .filter(group => group && group.size)
-      .map(group => group.update('layouts', layouts =>
-        layouts.map(layout =>
-          layout.toMap().filter((_, key) => key === 'name' || key === 'options'))
-        )
-      )
+    const { groups } = store.getState()
 
     localStorage.groups = JSON.stringify(groups)
   });
@@ -70,6 +64,7 @@ function init() {
         , component = require('./Root')({ data, prov })
         , render = process.browser ? renderToDOM : renderToStdout
         , { store } = component.props
+
 
     store.dispatch(resetLayoutGroups(getInitialLayouts()))
 
