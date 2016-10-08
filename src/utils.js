@@ -64,8 +64,15 @@ function processGroups(
 
       const { deriveOpts=noop } = enabledLayouts[name]
 
+      const noUpdateNeeded = (
+        prev &&
+        opts === prev.get('opts') &&
+        name === prev.get('name') &&
+        dataset === prevProcessedGroups.getIn([i, 'layouts', 'dataset'])
+      )
+
       const nextDerivedOpts = (
-        (prev && opts === prev.get('opts') && name === prev.get('name'))
+        noUpdateNeeded
           ? prev.get('derivedOpts')
           : deriveOpts === noop
             ? opts
