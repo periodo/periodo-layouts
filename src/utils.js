@@ -51,13 +51,15 @@ function processGroups(
     if (i === 0) {
       dataset = baseDataset;
     } else {
-      const filters = acc.last().get('layouts').reduce((filtersAcc, layout) => {
+      const filters = acc.last().get('layouts').reduce((acc, layout) => {
         const name = layout.get('name')
             , { getFilters } = enabledLayouts[name]
 
-        return !getFilters ? filtersAcc : filtersAcc.mergeWith(
-          (prev, next) => Immutable.Set(prev || next).union(next),
-          getFilters(dataset, layout.get('derivedOpts'))
+        return !getFilters
+          ? acc
+          : acc.mergeWith(
+            (prev, next) => Immutable.Set(prev || next).union(next),
+            getFilters(dataset, layout.get('derivedOpts'))
         )
       }, Immutable.Map({ keptPeriods: null, keptAuthorities: null }))
 
@@ -82,7 +84,11 @@ function processGroups(
             ? opts
             : deriveOpts((prev || Immutable.Map()).get('derivedOpts'), opts, dataset))
 
-      return Immutable.Map({ name, opts, derivedOpts: Immutable.Map(nextDerivedOpts) })
+      return Immutable.Map({
+        name,
+        opts,
+        derivedOpts: Immutable.Map(nextDerivedOpts)
+      })
     })
 
     return acc.push(Immutable.Map({ dataset, layouts }));
