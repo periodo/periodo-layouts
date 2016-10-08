@@ -6,7 +6,7 @@ const h = require('react-hyperscript')
     , { Provider } = require('react-redux')
     , { createStore, applyMiddleware, compose } = require('redux')
     , rootReducer = require('./reducers')
-    , LayoutPanel = require('./components/LayoutPanel')
+    , LayoutPanel = require('./components/Panel')
     , { ApplicationState } = require('./records')
 
 
@@ -89,7 +89,7 @@ const Root = React.createClass({
 
     return (
       h(Provider, { store }, [
-        h(LayoutPanel, { data, prov })
+        h(LayoutPanel, { data, prov, enabledLayouts: require('./layouts') })
       ])
     )
   }

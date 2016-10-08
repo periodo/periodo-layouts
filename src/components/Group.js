@@ -4,20 +4,17 @@ const h = require('react-hyperscript')
     , { bindActionCreators } = require('redux')
     , { connect } = require('react-redux')
     , { Block, Close } = require('rebass')
-    , LayoutPicker = require('./LayoutPicker')
+    , LayoutPicker = require('./Picker')
     , Layout = require('./Layout')
 
 function mapStateToProps(state, ownProps) {
-  const { groupIndex } = ownProps
-
   return {
     editing: state.editing,
-    layouts: state.groups.getIn([groupIndex, 'layouts']),
   }
 }
 
 function LayoutGroup({
-  data,
+  dataset,
   groupIndex,
 
   editing,
@@ -47,7 +44,7 @@ function LayoutGroup({
       h('div', layouts.toArray().map((layout, layoutIndex) =>
         h(Layout, {
           key: layoutIndex,
-          data,
+          dataset,
           groupIndex,
           layoutIndex,
         })
