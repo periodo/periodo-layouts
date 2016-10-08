@@ -9,7 +9,7 @@ exports.label = 'Text search';
 exports.description = 'Search for periods by text.';
 
 exports.makePeriodFilter = function (opts) {
-  const text = opts.get('text')
+  const text = opts && opts.get('text')
       , regex = text && new RegExp(text, 'i')
 
   return period => {
@@ -26,8 +26,7 @@ exports.renderer = React.createClass({
   displayName: 'TextSearch',
 
   render() {
-    const { options, updateOptions } = this.props
-        , text = options.get('text', '')
+    const { updateOpts, text } = this.props
 
     return (
       h('label', [
@@ -36,7 +35,7 @@ exports.renderer = React.createClass({
           type: 'text',
           value: text,
           onChange: e => {
-            updateOptions({ text: e.target.value })
+            updateOpts(opts => opts.set('text', e.target.value))
           }
         })
       ])

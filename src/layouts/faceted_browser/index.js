@@ -5,9 +5,9 @@ const Immutable = require('immutable')
 module.exports = {
   label: 'Faceted browser',
   description: 'Create a browseable faceted classification based on all periods.',
-  processor: require('./processor'),
+  deriveOpts: require('./derive_opts'),
   renderer: require('./FacetBrowser'),
-  defaultOptions: {
+  defaultOpts: {
     minWidth: 300,
     resultsMaxHeight: 360,
 

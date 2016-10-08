@@ -32,7 +32,7 @@ module.exports = React.createClass({
   },
 
   render() {
-    const { options, updateOptions, facetedClassification } = this.props
+    const { updateOpts, facetedClassification } = this.props
         , allFields = Object.keys(facets)
 
     const expandedFields = facetedClassification
@@ -42,10 +42,10 @@ module.exports = React.createClass({
 
     return (
       h('div', allFields.map(field =>
-        h(FacetField, Object.assign({}, facets[field], options.toObject(), {
+        h(FacetField, Object.assign({}, facets[field], this.props, {
           key: field,
           field,
-          updateOptions,
+          updateOpts,
 
           unselectedValues: this.getFacetValues(field),
           expanded: expandedFields.includes(field),

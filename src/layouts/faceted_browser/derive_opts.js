@@ -3,7 +3,6 @@
 const Immutable = require('immutable')
     , { FacetedClassification, FacetedQuery } = require('immfacet')
     , facets = require('./facets')
-    , { Derivations } = require('../../records')
 
 
 function updateFacetFields(dataset, facetedClassification, existing, desired) {
@@ -21,17 +20,19 @@ function updateFacetFields(dataset, facetedClassification, existing, desired) {
   return facetedClassification;
 }
 
-module.exports = function processor(dataset, options, { attributes }) {
-  let facetedClassification = attributes.get('facetedClassification')
+module.exports = function deriveOpts(prev, opts, dataset) {
+  let facetedClassification
 
-  if (!facetedClassification) {
+  if (prev && dataset === prev.get('dataset')) {
+    facetedClassification = prev.get('facetedClassification')
+  } else {
+    debugger;
     const periods = dataset
       .get('periodCollections')
       .flatMap(collection => collection
         .get('definitions')
         .map(period => period.set('collection_id', collection.get('id'))))
       .toList()
-
 
     facetedClassification = new FacetedClassification(periods)
   }
@@ -40,21 +41,17 @@ module.exports = function processor(dataset, options, { attributes }) {
     dataset,
     facetedClassification,
     facetedClassification.facets().keySeq().toSet(),
-    options.get('fields', Immutable.List()).toSet()
+    opts.get('fields', Immutable.List()).toSet()
   )
 
   let facetedQuery = new FacetedQuery(facetedClassification)
 
-  options.get('selectedValues', Immutable.Map()).forEach((values, name) => {
+  opts.get('selectedValues', Immutable.Map()).forEach((values, name) => {
     facetedQuery = facetedQuery.select({ name, values });
   })
 
-  attributes = attributes
-    .set('facetedClassification', facetedClassification)
-    .set('facetedQuery', facetedQuery);
-
-  return new Derivations({
-    keptPeriods: facetedQuery.selectedItems(),
-    attributes
+  return opts.merge({
+    facetedClassification,
+    facetedQuery,
   })
 }

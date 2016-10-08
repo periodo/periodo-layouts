@@ -34,10 +34,10 @@ module.exports = React.createClass({
   displayName: 'FacetField',
 
   toggleShown() {
-    const { updateOptions, field } = this.props
+    const { updateOpts, field } = this.props
 
-    updateOptions(options =>
-      options.update('fields', fields =>
+    updateOpts(opts =>
+      opts.update('fields', fields =>
         fields.contains(field)
           ? fields.remove(fields.indexOf(field))
           : fields.push(field)

@@ -11,7 +11,7 @@ exports.description = 'Simple list of periods';
 
 const reactRenderer = React.createClass({
   render() {
-    const { data, prov, setOptions } = this.props
+    const { data, prov, setOpts } = this.props
 
     const periods = data
       .get('periodCollections')
@@ -26,11 +26,11 @@ const reactRenderer = React.createClass({
 })
 
 const domRenderer = {
-  init(el, { data, prov, setOptions }) {
+  init(el, { data, prov, setOpts }) {
     this.el = el;
   },
 
-  update({ data, prov, setOptions }) {
+  update({ data, prov, setOpts }) {
     const periods = data
       .get('periodCollections')
       .flatMap(c => c.get('definitions'))
