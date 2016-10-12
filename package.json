@@ -11,21 +11,20 @@
     "prepublish": "rm -rf dist && npm run build",
     "build": "mkdir -p dist && browserify -o dist/bundle.js src/standalone.js",
     "watch": "mkdir -p dist && watchify -dv -o dist/bundle.js src/standalone.js",
-    "test": "tape src/tests/*"
+    "test": "eslint src && tape src/tests/*"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "d3": "^4.1.0",
-    "debounce": "^1.0.0",
     "immfacet": "^2.0.0",
     "immutable": "^3.8.1",
     "iso-639-3": "^1.0.0",
     "isomorphic-fetch": "^2.2.1",
+    "lodash": "^4.16.4",
     "n3": "^0.5.0",
     "periodo-utils": "^4.1.0",
-    "qs": "^6.2.1",
     "react": "^15.3.1",
     "react-dom": "^15.2.0",
     "react-hyperscript": "^2.4.0",

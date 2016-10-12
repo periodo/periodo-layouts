@@ -2,11 +2,12 @@
 
 const h = require('react-hyperscript')
     , { Block, LinkBlock, Heading, Text } = require('rebass')
+    , { Box } = require('reflexbox')
     , enabledLayouts = require('../layouts')
 
 module.exports = function LayoutPicker({ onSelectLayout }) {
   return (
-    h('div .LayoutPicker', [
+    h(Box, { flexAuto: true }, [
       h(Heading, { level: 2 }, 'Select layout'),
       h(Block, {
         tagName: 'ul',

@@ -3,24 +3,20 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , Immutable = require('immutable')
+    , { pick } = require('lodash')
     , { bindActionCreators } = require('redux')
     , { connect } = require('react-redux')
-    , { Button, Space } = require('rebass')
+    , { Block } = require('rebass')
+    , { Flex } = require('reflexbox')
     , enabledLayouts = require('../layouts')
     , LayoutGroup = require('./Group')
+    , EditBar = require('./EditBar')
     , { processGroups } = require('../utils')
 
 const baseStyles = {
   fontFamily: 'sans-serif',
   lineHeight: 1.33,
-}
-
-function mapStateToProps(state) {
-  return {
-    groups: state.groups,
-    editing: state.editing,
-    errors: state.errors,
-  }
+  height: '100%',
 }
 
 function layoutRenderer(props, propName) {
@@ -36,7 +32,7 @@ function layoutRenderer(props, propName) {
 
   if (isValid) return;
 
-  let msg = `Layout ${JSON.stringify(props.label)} `;
+  let msg = `Layout ${props.label} `;
 
   if (val === undefined) {
     msg += 'has not defined a `render` property.';
@@ -73,8 +69,6 @@ const LayoutPanel = React.createClass({
 
     editing: React.PropTypes.bool.isRequired,
     errors: React.PropTypes.instanceOf(Immutable.List).isRequired,
-
-    addLayout: React.PropTypes.func.isRequired,
   },
 
   getInitialState() {
@@ -130,52 +124,12 @@ const LayoutPanel = React.createClass({
   },
   
   render() {
-    const {
-      editing,
-      errors,
-
-      enableEditing,
-      disableEditing,
-
-      addLayoutGroup,
-      resetLayoutGroups,
-    } = this.props
+    const { editing, errors, groupActions } = this.props
 
     const { processedGroups } = this.state
 
     return (
-      h('main .LayoutPanel', { style: baseStyles }, [
-        h('div', [
-          h('label', [
-            'Edit ',
-            h('input', {
-              type: 'checkbox',
-              checked: editing,
-              onChange: editing ? disableEditing : enableEditing
-            })
-          ]),
-
-          h(Space, { x: 4 }),
-
-          h('span', [
-            'No. of groups: ',
-            processedGroups.size
-          ]),
-
-          h(Space, { x: 4 }),
-
-          h(Button, {
-            href: '',
-            backgroundColor: 'secondary',
-            onClick: e => {
-              e.preventDefault();
-              resetLayoutGroups([]);
-            }
-          }, 'Reset')
-        ]),
-
-        h('hr'),
-
+      h(Flex, { column: true, style: baseStyles }, [
         errors.size > 0 && h('pre', {
           style: {
             background: 'red',
@@ -185,25 +139,35 @@ const LayoutPanel = React.createClass({
           h('li', { key: i }, err.stack || err.toString())
         )),
 
-        h('div', processedGroups.toArray().map((group, i) =>
+        h(Block, {
+          p: 2,
+          style: {
+            flexGrow: 1
+          }
+        }, processedGroups.toArray().map((group, i) =>
           h(LayoutGroup,Object.assign({}, {
             key: i,
             groupIndex: i,
-          }, group.toObject()))
+            enabledLayouts,
+            editing,
+          }, group.toObject(), groupActions))
         )),
 
-        editing && h('div', [
-          h(Button, {
-            onClick: () => addLayoutGroup(),
-          }, 'Add')
-        ])
+        h(EditBar),
       ])
     )
   }
 })
 
-
 module.exports = connect(
-  mapStateToProps,
-  dispatch => bindActionCreators(require('../actions'), dispatch)
+  state => state.toObject(),
+  dispatch => ({
+    groupActions: bindActionCreators(pick(require('../actions'), [
+      'addLayout',
+      'removeLayout',
+      'updateLayoutOpts',
+      'addLayoutGroup',
+      'removeLayoutGroup',
+    ]), dispatch)
+  })
 )(LayoutPanel);

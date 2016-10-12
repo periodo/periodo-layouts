@@ -3,40 +3,12 @@
 const h = require('react-hyperscript')
     , React = require('react')
     , Immutable = require('immutable')
-    , { connect } = require('react-redux')
     , { Close, Block, Heading } = require('rebass')
-    , { Flex } = require('reflexbox')
-    , enabledLayouts = require('../layouts')
-    , { updateLayoutOpts, removeLayout } = require('../actions')
+    , { Flex, Box } = require('reflexbox')
+    , { isReactComponent } = require('../utils')
 
 
-function isReactComponent(obj) {
-  return 'isReactComponent' in (obj.prototype || {})
-}
-
-function mapStateToProps(state, ownProps) {
-  const { groupIndex, layoutIndex } = ownProps
-      , layout = state.groups.getIn([groupIndex, 'layouts', layoutIndex])
-
-  return Object.assign(layout.toObject(), {
-    layoutHandler: enabledLayouts[layout.name],
-    editing: state.editing
-  })
-}
-
-function mapDispatchToProps(dispatch, ownProps) {
-  const { groupIndex, layoutIndex } = ownProps
-
-  return {
-    updateOpts: opts =>
-      dispatch(updateLayoutOpts(groupIndex, layoutIndex, opts)),
-
-    removeLayout: () =>
-      dispatch(removeLayout(groupIndex, layoutIndex))
-  }
-}
-
-const Layout = React.createClass({
+module.exports = React.createClass({
   displayName: 'Layout',
 
   propTypes: {
@@ -45,14 +17,21 @@ const Layout = React.createClass({
     dataset: React.PropTypes.instanceOf(Immutable.Map).isRequired,
     //prov: React.PropTypes.object.isRequired,
 
-    name: React.PropTypes.oneOf(Object.keys(enabledLayouts)).isRequired,
     opts: React.PropTypes.instanceOf(Immutable.Map).isRequired,
     derivedOpts: React.PropTypes.instanceOf(Immutable.Map).isRequired,
-    layoutHandler: React.PropTypes.object.isRequired,
+
+    removeLayout: React.PropTypes.func.isRequired,
+    updateLayoutOpts: React.PropTypes.func.isRequired,
+  },
+
+  getLayoutHandler() {
+    const { name, enabledLayouts } = this.props
+
+    return enabledLayouts[name]
   },
 
   componentWillUpdate(nextProps) {
-    const { layoutHandler } = this.props
+    const layoutHandler = this.getLayoutHandler()
 
     // Layout type has changed
     if (nextProps.name !== this.props.name) {
@@ -69,7 +48,7 @@ const Layout = React.createClass({
   },
 
   componentDidUpdate() {
-    const { layoutHandler } = this.props
+    const layoutHandler = this.getLayoutHandler()
 
     // Layout type has not changed, but we do need to manually update
     // non-react layouts
@@ -79,7 +58,7 @@ const Layout = React.createClass({
   },
 
   componentDidMount() {
-    const { layoutHandler } = this.props
+    const layoutHandler = this.getLayoutHandler()
 
     if (!isReactComponent(layoutHandler.renderer)) {
       this.mountNonReactComponent();
@@ -96,7 +75,7 @@ const Layout = React.createClass({
   },
 
   mountNonReactComponent() {
-    const { layoutHandler } = this.props
+    const layoutHandler = this.getLayoutHandler()
         , { container } = this.refs
         , renderer = this._nonReactLayoutRenderer = Object.create(layoutHandler.renderer)
 
@@ -114,51 +93,53 @@ const Layout = React.createClass({
   },
 
   getChildProps() {
-    const { dataset, opts, updateOpts, editing, derivedOpts } = this.props
-
-    return Object.assign({}, opts && opts.toObject(), derivedOpts.toObject(), {
-      data: dataset,
-      updateOpts,
+    const {
+      opts,
       editing,
-    })
+      dataset,
+      groupIndex,
+      layoutIndex,
+      derivedOpts,
+      updateLayoutOpts,
+    } = this.props
+
+    return Object.assign({},
+      opts && opts.toObject(),
+      derivedOpts.toObject(), {
+        data: dataset,
+        updateOpts: updateLayoutOpts.bind(null, groupIndex, layoutIndex),
+        editing,
+      })
   },
 
   render() {
-    const { layoutHandler, name, editing, removeLayout } = this.props
+    const { description, label, renderer } = this.getLayoutHandler()
+        , { editing, removeLayout, groupIndex, layoutIndex } = this.props
 
     return (
-      h(`div .Layout .Layout-${name}`, {
-        style: {
-          display: 'inline-block'
-        }
-      }, [
+      h(Box, { flexAuto: true }, [
         editing && h(Block, {
           m: 0,
           color: 'white',
           backgroundColor: 'primaryAltDarkest'
         }, [
-          h(Flex, {
-            px: 1,
-            justify: 'space-between'
-          }, [
+          h(Flex, { px: 1, justify: 'space-between' }, [
             h(Heading, {
               level: 3,
-              title: layoutHandler.description,
+              title: description,
               my: 1
-            }, layoutHandler.label),
+            }, label),
 
             h(Close, {
-              onClick: removeLayout
+              onClick: () => removeLayout(groupIndex, layoutIndex)
             }),
           ])
         ]),
 
-        isReactComponent(layoutHandler.renderer)
-          ? h(layoutHandler.renderer, this.getChildProps())
+        isReactComponent(renderer)
+          ? h(renderer, this.getChildProps())
           : h('div', { ref: 'container' })
       ])
     )
   }
 })
-
-module.exports = connect(mapStateToProps, mapDispatchToProps)(Layout);

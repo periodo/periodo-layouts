@@ -40,7 +40,7 @@ const dataset = $({
 })
 
 test('Group processor', t => {
-  t.plan(6);
+  t.plan(5);
 
   t.ok(Immutable.is(
     processGroups(layoutHandlers, dataset, $([
@@ -77,29 +77,6 @@ test('Group processor', t => {
       }
     ])
   ), 'should pass through opts as derivedOpts without a deriveOpts function')
-
-
-  t.throws(
-    processGroups.bind(null, layoutHandlers, dataset,
-      $([
-          {
-            layouts: [
-              { name: 'noop', opts: { foo: 'bar' } }
-            ]
-          }
-      ]),
-
-      $([
-          {
-            layouts: [
-              { name: 'callTracker', opts: { foo: 'bar' } }
-            ]
-          }
-      ])
-    ),
-    /Cannot change the name of a layout/,
-    'should throw if a layout\'s handler is changed.'
-  )
 
   t.ok(Immutable.is(
     processGroups(layoutHandlers, dataset, $([

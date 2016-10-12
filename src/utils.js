@@ -55,11 +55,12 @@ function processGroups(
 
     const layouts = group.get('layouts').map((layout, j) => {
       const path = [i, 'layouts', j]
-          , prev = prevProcessedGroups.getIn(path)
           , { name, opts } = unprocessedGroups.getIn(path).toObject()
 
+      let prev = prevProcessedGroups.getIn(path)
+
       if (prev && name !== prev.get('name')) {
-        throw new Error('Cannot change the name of a layout.')
+        prev = undefined;
       }
 
       const { deriveOpts=noop } = enabledLayouts[name]
