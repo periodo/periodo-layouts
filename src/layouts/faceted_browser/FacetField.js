@@ -47,7 +47,7 @@ module.exports = React.createClass({
 
   render() {
     const {
-      minWidth,
+      maxWidth,
       resultsMaxHeight,
       label,
       expanded,
@@ -58,8 +58,9 @@ module.exports = React.createClass({
     return (
       h(Block, {
         border: true,
+        mr: 2,
         style: {
-          minWidth,
+          maxWidth,
           border: '1px solid #ccc',
           borderWidth: '2px',
         }

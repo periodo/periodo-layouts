@@ -8,7 +8,7 @@ module.exports = {
   deriveOpts: require('./derive_opts'),
   renderer: require('./FacetBrowser'),
   defaultOpts: {
-    minWidth: 300,
+    maxWidth: 480,
     resultsMaxHeight: 360,
 
     fields: Immutable.List(),

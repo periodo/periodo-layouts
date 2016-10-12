@@ -2,6 +2,7 @@
 
 const h = require('react-hyperscript')
     , React = require('react')
+    , { Flex } = require('reflexbox')
     , FacetField = require('./FacetField')
     , facets = require('./facets')
 
@@ -41,7 +42,10 @@ module.exports = React.createClass({
       .toSet()
 
     return (
-      h('div', allFields.map(field =>
+      h(Flex, {
+        align: 'flex-start',
+        mr: 2
+      }, allFields.map(field =>
         h(FacetField, Object.assign({}, facets[field], this.props, {
           key: field,
           field,

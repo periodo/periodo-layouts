@@ -3,17 +3,18 @@
   <head>
     <meta charset="utf-8">
     <title>PeriodO layouts</title>
+
     <style type="text/css">
-      .hide { display: none; }
+      body, html, #layout-container {
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
     </style>
   </head>
 
   <body>
-    <div>
-      <p id="layout-loading">Loading dataset...</p>
-      <ul id="layout-list" class="hide"></ul>
-    </div>
-
+    <p id="layout-loading">Loading dataset...</p>
     <div id="layout-container"></div>
 
     <script src="dist/bundle.js"></script>

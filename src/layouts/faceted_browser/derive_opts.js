@@ -26,7 +26,6 @@ module.exports = function deriveOpts(prev, opts, dataset) {
   if (prev && dataset === prev.get('dataset')) {
     facetedClassification = prev.get('facetedClassification')
   } else {
-    debugger;
     const periods = dataset
       .get('periodCollections')
       .flatMap(collection => collection

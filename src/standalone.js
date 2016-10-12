@@ -2,8 +2,7 @@
 
 require('isomorphic-fetch');
 
-const qs = require('qs')
-    , ReactDOM = require('react-dom')
+const ReactDOM = require('react-dom')
     , Immutable = require('immutable')
     , { resetLayoutGroups } = require('./actions')
     , { renderToString } = require('react-dom/server')
@@ -38,12 +37,10 @@ function getInitialLayouts() {
 
 function renderToDOM(component) {
   const loadingEl = document.getElementById('layout-loading')
-      , listEl = document.getElementById('layout-list')
       , containerEl = document.getElementById('layout-container')
       , { store } = component.props
 
-  listEl.classList.remove('hide');
-  loadingEl.classList.add('hide');
+  loadingEl.parentNode.removeChild(loadingEl);
 
   store.subscribe(() => {
     const { groups } = store.getState()
