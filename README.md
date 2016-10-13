@@ -77,7 +77,7 @@ The name of this layout. For example, "Stacked timeline", or "Faceted browser"
 A brief description of what this layout does
 
 
-### Layout.render
+### Layout.renderer
 A. *Object: { init(el, dataset, opts), render(dataset, opts, updateOpts) }*
 
 `.init()` is called as soon as the layout is mounted in the DOM. `.update()`
@@ -85,21 +85,13 @@ is called every time the system updates. It is also called after `init()`.
 
 `updateOpts` is a callback which can be executed to update the `opts` Map.
 After this update, the system will be updated according to the values of those
-new parameters.
-
-For example, if I were writing a simple text input which filters out periods
-with matching labels, I would need to keep track of the state of the text
-entered into the input. To update that state to a new value, I would call:
-
-    `updateOpts(opts => opts.set('text', 'newvalue'))`
-
-This value will be the value of `opts` in the next render cycle, and will also
-be the value of `opts`.
+new parameters.  This new value will be the value of `opts` in the next render
+cycle, and will also be the value of `opts`.
 
 B. *ReactComponent*
 
-If the renderer is a react component, it will receive `dataset` and
-`updateOpts` as props. It will not receive an `opts` prop- rather, it will
+If the renderer is a React Component, it will receive `dataset` and
+`updateOpts` as props. It will not receive an `opts` prop– rather, it will
 receive a prop for every key-value pair present in `opts`.
 
 NOTE: Renderers that are not React components are only rendered after a DOM
@@ -123,6 +115,41 @@ into HTML.  By default, the options will be returned without any changes.
 The usefulness of this setting lies in allowing layouts to have complexly-
 derived properties not need to be recalculated on every change.
 
+### Example layout
+
+```js
+const TextSearch = React.createClass({
+  render() {
+    const { searchString, updateOpts } = this.props
+
+    return (
+      h('label', [
+        'Search: ',
+        h('input', {
+          type: 'text',
+          value: searchString,
+          onChange: e => updateOpts({ searchString: e.target.value })
+        })
+      ])
+    )
+  }
+})
+
+module.exports = {
+  label: 'Text searcher',
+  description: 'Search for a text string in a period label.'
+  renderer: TextSearch,
+
+  makePeriodFilter(opts) {
+    const { searchString } = opts
+
+    return period =>
+      searchString
+        ? period.get('label').indexOf(searchString) > 1
+        : true
+  }
+}
+```
 
 ## Rendering to static HTML
 
