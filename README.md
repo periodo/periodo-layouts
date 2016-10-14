@@ -16,31 +16,31 @@ Once the application has been compiled, open `index.html`.
 ## Architecture
 
 ```
-Data flow     *   Components
-============  *   ==============
-              *
-  Dataset     *
-     |        *
-     |        *
------|------  *    -------- --------
-     |        *   |        |        |  \            \
-     |        *   |        |        |   |            |
-  Dataset     *   | Layout | Layout |   |<-- Group   |
-     |        *   |        |        |   |            |
-     v        *   |        |        |  /             |
---(filter)--  *    -------- --------                 |
-     |        *       |        |        \            |
-     |        *       |        |         |           |
-  Dataset'    *       | Layout |         | <-- Group | <--- Panel
-     |        *       |        |         |           |
-     v        *       |        |        /            |
---(filter)--  *    -------- --------                 |
-     |        *   |        |        |  \             |
-     |        *   |        |        |   |            |
-  Dataset''   *   | Layout | Layout |   |<-- Group   |
-              *   |        |        |   |            |
-              *   |        |        |  /            /
-------------  *    -------- --------
+Data flow      *   Components
+============   *   ==============
+               *
+  Dataset      *
+     |         *
+     |         *
+-----|------   *    -------- --------
+     |         *   |        |        |  \            \
+     |         *   |        |        |   |            |
+  Dataset      *   | Layout | Layout |   |<-- Group   |
+     |         *   |        |        |   |            |
+     v         *   |        |        |  /             |
+--(matcher)--  *    -------- --------                 |
+     |         *       |        |        \            |
+     |         *       |        |         |           |
+  Dataset'     *       | Layout |         | <-- Group | <--- Panel
+     |         *       |        |         |           |
+     v         *       |        |        /            |
+--(matcher)--  *    -------- --------                 |
+     |         *   |        |        |  \             |
+     |         *   |        |        |   |            |
+  Dataset''    *   | Layout | Layout |   |<-- Group   |
+               *   |        |        |   |            |
+               *   |        |        |  /            /
+------------   *    -------- --------
 ```
 
 A Panel consists of one or more Groups, and a Group consists of one or
