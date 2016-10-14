@@ -162,7 +162,7 @@ by the "members" option in serializedOpts, I could write the following:
 layout.deriveOpts = (prevDerivedOpts, serializedOpts) =>
   prevDerivedOpts
     .update('members', m =>
-      m.intersect(serializedOpts.get('members')))
+      (m || Immutable.Set()).intersect(serializedOpts.get('members')))
 ```
 
 ### .makePeriodMatcher: Transforming dataflow
