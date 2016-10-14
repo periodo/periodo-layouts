@@ -161,9 +161,12 @@ by the "members" option in serializedOpts, I could write the following:
 ```js
 layout.deriveOpts = (prevDerivedOpts, serializedOpts) =>
   prevDerivedOpts
-    .update('members', m =>
-      (m || Immutable.Set()).intersect(serializedOpts.get('members')))
+    .update('members', Immutable.Set(), m =>
+      m.intersect(serializedOpts.get('members')))
 ```
+
+(See the Immutable.js documentation for 
+[`Map.prototype.update()`](https://facebook.github.io/immutable-js/docs/#/Map/update)).
 
 ### .makePeriodMatcher: Transforming dataflow
 
