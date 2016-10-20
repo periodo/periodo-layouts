@@ -69,7 +69,7 @@ function processGroups(
         prev &&
         opts === prev.get('opts') &&
         name === prev.get('name') &&
-        dataset === prevProcessedGroups.getIn([i, 'layouts', 'dataset'])
+        dataset === prevProcessedGroups.getIn([i, 'dataset'])
       )
 
       const nextDerivedOpts = (
