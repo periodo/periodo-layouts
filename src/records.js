@@ -16,6 +16,7 @@ const Layout = Immutable.Record({
 
 const LayoutGroup = Immutable.Record({
   layouts: Immutable.List(),
+  opts: Immutable.Map(),
 })
 
 module.exports = {

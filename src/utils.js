@@ -21,6 +21,8 @@ function processGroups(
       return acc.push(prevProcessedGroups.get(i))
     }
 
+    const opts = group.get('opts')
+
     let dataset
 
     if (i === 0) {
@@ -89,7 +91,7 @@ function processGroups(
       })
     })
 
-    return acc.push(Immutable.Map({ dataset, layouts }));
+    return acc.push(Immutable.Map({ dataset, layouts, opts }));
   }, Immutable.List())
 }
 

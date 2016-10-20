@@ -40,7 +40,7 @@ const dataset = $({
 })
 
 test('Group processor', t => {
-  t.plan(5);
+  t.plan(6);
 
   t.ok(Immutable.is(
     processGroups(layoutHandlers, dataset, $([
@@ -53,6 +53,7 @@ test('Group processor', t => {
     $([
       {
         dataset,
+        opts: undefined,
         layouts: [
           { name: 'noop', opts: undefined, derivedOpts: {} }
         ]
@@ -71,6 +72,7 @@ test('Group processor', t => {
     $([
       {
         dataset,
+        opts: undefined,
         layouts: [
           { name: 'noop', opts: { foo: 'bar' }, derivedOpts: { foo: 'bar' } }
         ]
@@ -89,6 +91,7 @@ test('Group processor', t => {
     $([
       {
         dataset,
+        opts: undefined,
         layouts: [
           { name: 'callTracker', opts: undefined, derivedOpts: { called: true } }
         ]
@@ -109,6 +112,7 @@ test('Group processor', t => {
       $([
           {
             dataset,
+            opts: undefined,
             layouts: [
               { name: 'callTracker', opts: undefined, derivedOpts: { test: 1 } }
             ]
@@ -118,6 +122,7 @@ test('Group processor', t => {
     $([
       {
         dataset,
+        opts: undefined,
         layouts: [
           { name: 'callTracker', opts: undefined, derivedOpts: { test: 1 } }
         ]
@@ -142,6 +147,7 @@ test('Group processor', t => {
     $([
         {
           dataset,
+          opts: undefined,
           layouts: [
             { name: 'datasetFilterer', opts: undefined, derivedOpts: {} }
           ]
@@ -157,12 +163,28 @@ test('Group processor', t => {
               }
             }
           },
+          opts: undefined,
           layouts: [
             { name: 'noop', opts: undefined, derivedOpts: {} }
           ]
         }
     ])
-      )
-    , 'should filter data between layout groups')
+  ), 'should filter data between layout groups')
+
+  t.ok(Immutable.is(
+    processGroups(layoutHandlers, dataset, $([
+        {
+          opts: { m: 1 },
+          layouts: []
+        }
+    ])),
+    $([
+        {
+          dataset,
+          opts: { m: 1 },
+          layouts: [],
+        },
+    ])
+  ), 'should allow passing opts to groups')
 
 })
