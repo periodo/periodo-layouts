@@ -30,6 +30,10 @@ module.exports = React.createClass({
     return enabledLayouts[name]
   },
 
+  getInitialState() {
+    return { error: false }
+  },
+
   componentWillUpdate(nextProps) {
     const layoutHandler = this.getLayoutHandler()
 
@@ -64,6 +68,10 @@ module.exports = React.createClass({
       this.mountNonReactComponent();
       this.updateNonReactComponent();
     }
+  },
+
+  unstable_handleError(e) {
+    this.setState({ error: e })
   },
 
   updateNonReactComponent() {
@@ -115,6 +123,7 @@ module.exports = React.createClass({
   render() {
     const { description, label, renderer } = this.getLayoutHandler()
         , { editing, removeLayout, groupIndex, layoutIndex } = this.props
+        , { error } = this.state
 
     return (
       h(Box, { flexAuto: true }, [
@@ -136,9 +145,11 @@ module.exports = React.createClass({
           ])
         ]),
 
-        isReactComponent(renderer)
+        !error && isReactComponent(renderer)
           ? h(renderer, this.getChildProps())
-          : h('div', { ref: 'container' })
+          : h('div', { ref: 'container' }),
+
+        error !== false && h('pre', error.stack || error.toString())
       ])
     )
   }
