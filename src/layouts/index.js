@@ -1,10 +1,8 @@
 module.exports = {
-  'statistics': require('./statistics'),
-  'changelog-summary': require('./changelog_summary'),
-  'faceted-browser': require('./faceted_browser'),
-  'text-search': require('./TextSearch'),
-  'period-list': require('./PeriodList'),
-  'update-counter': require('./update_counter'),
-  'range-selection': require('./range_selection'),
-  'period-list-2': require('./List'),
+  FacetedBrowser: require('./FacetedBrowser'),
+  PeriodList: require('./PeriodList'),
+  RangeSelection: require('./RangeSelection'),
+  Statistics: require('./Statistics'),
+  TextSearch: require('./TextSearch'),
+  UpdateCounter: require('./UpdateCounter'),
 }
