@@ -6,4 +6,5 @@ module.exports = {
   'period-list': require('./PeriodList'),
   'update-counter': require('./update_counter'),
   'range-selection': require('./range_selection'),
+  'period-list-2': require('./List'),
 }
